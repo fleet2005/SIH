@@ -55,3 +55,12 @@ def draw_button(screen, show_input_boxes):
     pygame.draw.rect(screen, BUTTON_COLOR, button_rect)
     screen.blit(button_text_rendered, (button_rect.x + 15, button_rect.y + 10))
     return button_rect
+
+def draw_start_button(screen):
+    button_color = (0, 200, 0)  # Green button color
+    font = pygame.font.SysFont("Arial", 30)
+    text = font.render("Start", True, (255, 255, 255))  # White text
+    button_rect = pygame.Rect(950, 200, 120, 50)  # Position and size of the button
+    pygame.draw.rect(screen, button_color, button_rect)  # Draw button
+    screen.blit(text, (button_rect.x + 20, button_rect.y + 10))  # Center the text
+    return button_rect
