@@ -3,6 +3,7 @@ import sys
 import math
 from queue import PriorityQueue
 import uielements  # Importing your UI elements file
+import storage # For the map boundary
 
 clock = pygame.time.Clock()
 
@@ -117,8 +118,12 @@ def get_neighbors(position):
     for dx, dy in directions:
         nx, ny = position[0] + dx, position[1] + dy
         if 0 <= nx < grid_width and 0 <= ny < grid_height:
-            neighbors.append((nx, ny))
+            if(nx, ny) not in blocks:
+                neighbors.append((nx, ny))
     return neighbors
+
+# Map Boundary
+blocks = storage.Backup_black_cells
 
 # Main loop
 running = True

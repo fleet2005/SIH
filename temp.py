@@ -3,6 +3,7 @@ import sys
 import math
 from queue import PriorityQueue
 import uielements  # Importing your UI elements file
+import storage # For the map boundary
 
 clock = pygame.time.Clock()
 
@@ -120,6 +121,9 @@ def get_neighbors(position):
             neighbors.append((nx, ny))
     return neighbors
 
+# Map Boundary
+blocks = storage.Backup_black_cells
+
 # Main loop
 running = True
 path_found = False  # New flag to check if the path has been found
@@ -180,3 +184,5 @@ while running:
 
     pygame.display.flip()
     clock.tick(30)
+
+
