@@ -1,6 +1,7 @@
 import pygame
 import sys
 import numpy as np  # Import numpy for pixel array manipulation
+import storage 
 
 # Initialize Pygame
 pygame.init()
@@ -80,7 +81,7 @@ black_cells = findBlackCells(image)  # Find black cells and store them
 print("Black cells found:", black_cells)  # Print the coordinates of black cells
 
 # Define the target cell (grid coordinates) to be marked in green
-target_cell = (98, 88) # Replace this with the desired coordinates
+target_cell = (76, 91) # Replace this with the desired coordinates
 
 while running:
     # Handle events
@@ -95,7 +96,7 @@ while running:
     foreground()         # Draw the foreground image
 
     # Draw a colored rectangle on each black cell found
-    for cell_coords in black_cells:
+    for cell_coords in storage.Backup_black_cells:
         x, y = cell_coords
         # Draw a rectangle where the black cells are
         rect_x = map_position[0] + x * grid_size
