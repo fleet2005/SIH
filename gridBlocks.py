@@ -46,7 +46,34 @@ def drawGrid():
         pygame.draw.line(screen, BLUE, (x, map_position[1]), (x, map_position[1] + 600))
     for y in range(map_position[1], map_position[1] + 600, grid_size):
         pygame.draw.line(screen, BLUE, (map_position[0], y), (map_position[0] + 550, y))
+        
+# Function to convert grid y-coordinate to geographical latitude
+def grid_to_latitude(grid_y):
+    # Northernmost latitude and corresponding grid y-position
+    northernmost_latitude = 37.1
+    northernmost_grid_y = 9
+    
+    # Calculate the latitude for the given grid y-position
+    latitude_per_cell = 0.2305
+    latitude = northernmost_latitude - (grid_y - northernmost_grid_y) * latitude_per_cell
+    return latitude
+ 
 
+# Function to convert grid x-coordinate to geographical longitude
+def grid_to_longitude(grid_x):
+     # Westernmost and Easternmost points in grid and geographical coordinates
+    westernmost_longitude = 68.1167  # Approximate decimal for 68° 7' E
+    easternmost_longitude = 97.4167  # Approximate decimal for 97° 25' E
+    westernmost_grid_x = 16
+    easternmost_grid_x = 121
+
+    # Calculate longitude change per cell
+    longitude_per_cell = (easternmost_longitude - westernmost_longitude) / (easternmost_grid_x - westernmost_grid_x)
+
+    longitude = westernmost_longitude + (grid_x - westernmost_grid_x) * longitude_per_cell
+    return longitude
+
+ 
 # Function to detect black cells and store only the grid coordinates
 def findBlackCells(image):
     block = set()  # Set to store the grid coordinates of black cells
@@ -81,7 +108,7 @@ black_cells = findBlackCells(image)  # Find black cells and store them
 print("Black cells found:", black_cells)  # Print the coordinates of black cells
 
 # Define the target cell (grid coordinates) to be marked in green
-target_cell = (76, 91) # Replace this with the desired coordinates
+target_cell = (121,51) # Replace this with the desired coordinates
 
 while running:
     # Handle events
@@ -95,13 +122,13 @@ while running:
     drawGrid()           # Draw the grid
     foreground()         # Draw the foreground image
 
-    # Draw a colored rectangle on each black cell found
-    for cell_coords in storage.Backup_black_cells:
-        x, y = cell_coords
-        # Draw a rectangle where the black cells are
-        rect_x = map_position[0] + x * grid_size
-        rect_y = map_position[1] + y * grid_size
-        pygame.draw.rect(screen, YELLOW, (rect_x, rect_y, grid_size, grid_size))
+    # # Draw a colored rectangle on each black cell found
+    # for cell_coords in storage.Backup_black_cells:
+    #     x, y = cell_coords
+    #     # Draw a rectangle where the black cells are
+    #     rect_x = map_position[0] + x * grid_size
+    #     rect_y = map_position[1] + y * grid_size
+    #     pygame.draw.rect(screen, YELLOW, (rect_x, rect_y, grid_size, grid_size))
 
     # Mark the target cell in green
     if target_cell:
@@ -114,6 +141,13 @@ while running:
 
     # Set the frame rate
     pygame.time.Clock().tick(60)  # 60 frames per second
+    
+    # Example usage of coordinate converter for y axis:
+    grid_y = 135  # Example grid y-coordinate
+    latitude = grid_to_latitude(grid_y)
+    print(f"Geographical latitude for grid y = {grid_y}: {latitude}°")
+    
+    print("Coordinate:  ", grid_to_longitude(121))
 
 # Quit Pygame
 pygame.quit()

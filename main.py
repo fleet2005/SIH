@@ -23,6 +23,12 @@ BLUE = (0, 0, 200)
 GREEN = (0, 150, 0)
 RED = (255, 0, 0)
 
+#Border Tips
+NORTH = (40,9)
+SOUTH = (49,135) 
+WEST = (16,71)
+EAST = (121,51)
+
 # Grid properties
 grid_size = 4  # Size of each grid cell in pixels
 grid_width, grid_height = 550 // grid_size, 600 // grid_size  # Number of cells in each dimension
