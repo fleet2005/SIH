@@ -1,17 +1,37 @@
-# ui_elements.py
 import pygame
 
 # Colors
 WHITE = (255, 255, 255)
 INPUT_BOX_COLOR = (0, 0, 255)
 LABEL_COLOR = (255, 255, 255)
-BUTTON_COLOR = (0, 100, 200)
+MANUAL_COLOR_TOP = (255, 100, 100)   # Light red for Manual
+MANUAL_COLOR_BOTTOM = (200, 50, 50)
+AUTOMATIC_COLOR_TOP = (100, 255, 100)  # Light green for Automatic
+AUTOMATIC_COLOR_BOTTOM = (50, 200, 50)
 BUTTON_TEXT_COLOR = WHITE
+BUTTON_BORDER_COLOR = (200, 200, 200)  # Light gray for border
+SHADOW_COLOR = (50, 50, 50)
 
 # Input box properties
 input_boxes_position = [(670, 70), (670, 120), (910, 70), (910, 120)]
 input_boxes = ["", "", "", ""]
 active_box = None
+
+# Function to draw rounded rectangles
+def draw_rounded_rect(screen, rect, color, border_radius=8):
+    pygame.draw.rect(screen, color, rect, border_radius=border_radius)
+
+# Function to draw gradient-filled rounded rectangles
+def draw_gradient_button(screen, rect, color_top, color_bottom, border_radius=8):
+    gradient_surface = pygame.Surface(rect.size, pygame.SRCALPHA)
+    for y in range(rect.height):
+        blend_ratio = y / rect.height
+        r = int(color_top[0] * (1 - blend_ratio) + color_bottom[0] * blend_ratio)
+        g = int(color_top[1] * (1 - blend_ratio) + color_bottom[1] * blend_ratio)
+        b = int(color_top[2] * (1 - blend_ratio) + color_bottom[2] * blend_ratio)
+        pygame.draw.line(gradient_surface, (r, g, b), (0, y), (rect.width, y))
+    pygame.draw.rect(screen, BUTTON_BORDER_COLOR, rect, width=1, border_radius=border_radius)
+    screen.blit(gradient_surface, rect.topleft)
 
 # Draw the input boxes with labels
 def draw_input_boxes(screen):
@@ -48,19 +68,34 @@ def handle_mouse_click(event):
 
 # Draw "Manual" / "Automatic" button
 def draw_button(screen, show_input_boxes):
+    button_rect = pygame.Rect(670, 200, 150, 50)
+    if show_input_boxes:
+        draw_gradient_button(screen, button_rect, AUTOMATIC_COLOR_TOP, AUTOMATIC_COLOR_BOTTOM)
+    else:
+        draw_gradient_button(screen, button_rect, MANUAL_COLOR_TOP, MANUAL_COLOR_BOTTOM)
+    
     font = pygame.font.Font(None, 36)
     button_text = "Automatic" if show_input_boxes else "Manual"
     button_text_rendered = font.render(button_text, True, BUTTON_TEXT_COLOR)
-    button_rect = pygame.Rect(670, 200, 120, 50)
-    pygame.draw.rect(screen, BUTTON_COLOR, button_rect)
-    screen.blit(button_text_rendered, (button_rect.x + 15, button_rect.y + 10))
+    screen.blit(button_text_rendered, (button_rect.centerx - button_text_rendered.get_width() // 2,
+                                       button_rect.centery - button_text_rendered.get_height() // 2))
     return button_rect
 
+# Draw "Start" button with a modern look
 def draw_start_button(screen):
-    button_color = (0, 200, 0)  # Green button color
-    font = pygame.font.SysFont("Arial", 30)
-    text = font.render("Start", True, (255, 255, 255))  # White text
-    button_rect = pygame.Rect(950, 200, 120, 50)  # Position and size of the button
-    pygame.draw.rect(screen, button_color, button_rect)  # Draw button
-    screen.blit(text, (button_rect.x + 20, button_rect.y + 10))  # Center the text
+    button_rect = pygame.Rect(950, 200, 150, 50)
+
+    # Shadow effect
+    shadow_rect = button_rect.copy()
+    shadow_rect.topleft = (shadow_rect.x + 3, shadow_rect.y + 3)
+    pygame.draw.rect(screen, SHADOW_COLOR, shadow_rect, border_radius=8)
+
+    # Gradient button
+    draw_gradient_button(screen, button_rect, (0, 150, 255), (0, 100, 200))
+
+    # Button text
+    font = pygame.font.Font(None, 36)
+    text = font.render("Calculate", True, BUTTON_TEXT_COLOR)
+    screen.blit(text, (button_rect.centerx - text.get_width() // 2,
+                       button_rect.centery - text.get_height() // 2))
     return button_rect

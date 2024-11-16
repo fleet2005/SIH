@@ -4,6 +4,7 @@ import math
 from queue import PriorityQueue
 import uielements  # Importing your UI elements file
 import storage # For the map boundary
+import weatherDisplay
 
 clock = pygame.time.Clock()
 
@@ -90,6 +91,8 @@ def a_star(start, end):
             background()
             drawGrid()
             foreground()
+            weatherDisplay.weather(screen,  28.6139,  77.2090 )
+            weatherDisplay.weatherTwo(screen,  35.00,  45.2090 )
 
             pygame.time.delay(500)
             
@@ -159,6 +162,8 @@ while running:
     background()
     drawGrid()
     foreground()
+    weatherDisplay.weather(screen,  28.6139,  77.2090 )
+    weatherDisplay.weatherTwo(screen,  35.00,  45.2090 )
     
     # Draw the "Start" button
     uielements.draw_start_button(screen)  # Ensure the "Start" button is drawn
