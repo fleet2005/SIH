@@ -68,7 +68,7 @@ def handle_mouse_click(event):
 
 # Draw "Manual" / "Automatic" button
 def draw_button(screen, show_input_boxes):
-    button_rect = pygame.Rect(670, 200, 150, 50)
+    button_rect = pygame.Rect(670, 200, 220, 60)
     if show_input_boxes:
         draw_gradient_button(screen, button_rect, AUTOMATIC_COLOR_TOP, AUTOMATIC_COLOR_BOTTOM)
     else:
@@ -83,7 +83,7 @@ def draw_button(screen, show_input_boxes):
 
 # Draw "Start" button with a modern look
 def draw_start_button(screen):
-    button_rect = pygame.Rect(950, 200, 150, 50)
+    button_rect = pygame.Rect(950, 200, 220, 60)
 
     # Shadow effect
     shadow_rect = button_rect.copy()
@@ -96,6 +96,82 @@ def draw_start_button(screen):
     # Button text
     font = pygame.font.Font(None, 36)
     text = font.render("Calculate", True, BUTTON_TEXT_COLOR)
+    screen.blit(text, (button_rect.centerx - text.get_width() // 2,
+                       button_rect.centery - text.get_height() // 2))
+    return button_rect
+
+ # Draw "Fuel Estimation" button
+def draw_fuel_estimation_button(screen):
+    button_rect = pygame.Rect(950, 270, 220, 60)
+
+    # Shadow effect
+    shadow_rect = button_rect.copy()
+    shadow_rect.topleft = (shadow_rect.x + 3, shadow_rect.y + 3)
+    pygame.draw.rect(screen, SHADOW_COLOR, shadow_rect, border_radius=8)
+
+    # Gradient button
+    draw_gradient_button(screen, button_rect, (255, 200, 0), (255, 150, 0))
+
+    # Button text
+    font = pygame.font.Font(None, 36)
+    text = font.render("Fuel Estimation", True, BUTTON_TEXT_COLOR)
+    screen.blit(text, (button_rect.centerx - text.get_width() // 2,
+                       button_rect.centery - text.get_height() // 2))
+    return button_rect
+
+# Draw "Image Analysis" button
+def draw_image_analysis_button(screen):
+    button_rect = pygame.Rect(950, 340, 220, 60)
+
+    # Shadow effect
+    shadow_rect = button_rect.copy()
+    shadow_rect.topleft = (shadow_rect.x + 3, shadow_rect.y + 3)
+    pygame.draw.rect(screen, SHADOW_COLOR, shadow_rect, border_radius=8)
+
+    # Gradient button
+    draw_gradient_button(screen, button_rect, (200, 0, 255), (150, 0, 200))
+
+    # Button text
+    font = pygame.font.Font(None, 36)
+    text = font.render("Image Analysis", True, BUTTON_TEXT_COLOR)
+    screen.blit(text, (button_rect.centerx - text.get_width() // 2,
+                       button_rect.centery - text.get_height() // 2))
+    return button_rect
+
+# Draw "Retrain Model" button
+def draw_retrain_model_button(screen):
+    button_rect = pygame.Rect(670, 270, 220, 60)
+
+    # Shadow effect
+    shadow_rect = button_rect.copy()
+    shadow_rect.topleft = (shadow_rect.x + 3, shadow_rect.y + 3)
+    pygame.draw.rect(screen, SHADOW_COLOR, shadow_rect, border_radius=8)
+
+    # Gradient button
+    draw_gradient_button(screen, button_rect, (0, 255, 150), (0, 200, 100))
+
+    # Button text
+    font = pygame.font.Font(None, 36)
+    text = font.render("Retrain Model", True, BUTTON_TEXT_COLOR)
+    screen.blit(text, (button_rect.centerx - text.get_width() // 2,
+                       button_rect.centery - text.get_height() // 2))
+    return button_rect
+
+# Draw "Path Coordinates" button
+def draw_path_coordinates_button(screen):
+    button_rect = pygame.Rect(670, 340, 220, 60)
+
+    # Shadow effect
+    shadow_rect = button_rect.copy()
+    shadow_rect.topleft = (shadow_rect.x + 3, shadow_rect.y + 3)
+    pygame.draw.rect(screen, SHADOW_COLOR, shadow_rect, border_radius=8)
+
+    # Gradient button
+    draw_gradient_button(screen, button_rect, (100, 100, 255), (50, 50, 200))
+
+    # Button text
+    font = pygame.font.Font(None, 36)
+    text = font.render("Path Coordinates", True, BUTTON_TEXT_COLOR)
     screen.blit(text, (button_rect.centerx - text.get_width() // 2,
                        button_rect.centery - text.get_height() // 2))
     return button_rect

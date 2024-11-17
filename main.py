@@ -93,6 +93,10 @@ def a_star(start, end):
             foreground()
             weatherDisplay.weather(screen,  28.6139,  77.2090 )
             weatherDisplay.weatherTwo(screen,  35.00,  45.2090 )
+            uielements.draw_fuel_estimation_button(screen)
+            uielements.draw_image_analysis_button(screen)
+            uielements.draw_retrain_model_button(screen)
+            uielements.draw_path_coordinates_button(screen)
 
             pygame.time.delay(500)
             
@@ -164,6 +168,10 @@ while running:
     foreground()
     weatherDisplay.weather(screen,  28.6139,  77.2090 )
     weatherDisplay.weatherTwo(screen,  35.00,  45.2090 )
+    uielements.draw_fuel_estimation_button(screen)
+    uielements.draw_image_analysis_button(screen)
+    uielements.draw_retrain_model_button(screen)
+    uielements.draw_path_coordinates_button(screen)
     
     # Draw the "Start" button
     uielements.draw_start_button(screen)  # Ensure the "Start" button is drawn

@@ -24,7 +24,7 @@ def get_weather_data(latitude, longitude):
             "feels_like": f"{data['main']['feels_like']}°C",
             "humidity": f"{data['main']['humidity']}%",
             "wind_speed": f"{data['wind']['speed']} m/s",
-            "description": data['weather'][0]['description'].capitalize()
+            "description": data['weather'][0]['description'].capitalize().split()[0]
         }
     else:
         return {"error": "Unable to fetch weather data"}
@@ -38,10 +38,10 @@ def weather(screen, latitude, longitude):
     font = pygame.font.Font(None, 36)
     label_font = pygame.font.Font(None, 28)
     x_position = screen.get_width() * 3 // 4  # Start drawing in the 4th quadrant
-    y_position = screen.get_height() * 3 // 4 -30  # Adjust Y position for quadrant
+    y_position = screen.get_height() * 3 // 4 -50  # Adjust Y position for quadrant
 
     # Draw a background box for better visibility
-    box_width, box_height = 240, 200
+    box_width, box_height = 240, 180
     pygame.draw.rect(screen, BACKGROUND_COLOR, (x_position, y_position, box_width, box_height), border_radius=10)
 
     # Render weather data
@@ -51,7 +51,7 @@ def weather(screen, latitude, longitude):
             f"Feels Like: {weather_data['feels_like']}",
             f"Humidity: {weather_data['humidity']}",
             f"Wind Speed: {weather_data['wind_speed']}",
-            f"Description: {weather_data['description']}"
+            f"Description: {weather_data['description'].split()[0]}"
         ]
     else:
         weather_text = [weather_data["error"]]
@@ -69,10 +69,10 @@ def weatherTwo(screen, latitude, longitude):
     font = pygame.font.Font(None, 36)
     label_font = pygame.font.Font(None, 28)
     x_position = screen.get_width() * 3 // 4 -280 # Start drawing in the 4th quadrant
-    y_position = screen.get_height() * 3 // 4 -30  # Adjust Y position for quadrant
+    y_position = screen.get_height() * 3 // 4 -50 # Adjust Y position for quadrant
 
     # Draw a background box for better visibility
-    box_width, box_height = 240, 200
+    box_width, box_height = 240, 180
     pygame.draw.rect(screen, BACKGROUND_COLOR, (x_position, y_position, box_width, box_height), border_radius=10)
 
     # Render weather data
