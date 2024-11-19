@@ -3,7 +3,7 @@ import sys
 import math
 from queue import PriorityQueue
 import uielements  # Importing your UI elements file
-import storage # For the map boundary
+import weatherDisplay
 
 clock = pygame.time.Clock()
 
@@ -23,9 +23,15 @@ BLUE = (0, 0, 200)
 GREEN = (0, 150, 0)
 RED = (255, 0, 0)
 
+# Border Tips
+NORTH = (40,9)
+SOUTH = (49,135)
+WEST = (16,71)
+EAST = (121,51)
+
 # Grid properties
 grid_size = 4  # Size of each grid cell in pixels
-grid_width, grid_height = 550 // grid_size, 600 // grid_size  # Number of cells in each dimension
+grid_width, grid_height = 550,600 # Number of cells in each dimension
 
 # Background image positions
 map_position = (100, 70)
@@ -59,7 +65,7 @@ def a_star(start, end):
     came_from = {}
     g_score = {start: 0}
     f_score = {start: euclidean(start, end)}
-    explored_nodes = []   
+    explored_nodes = []
 
     while not open_set.empty():
         _, current = open_set.get()
@@ -84,6 +90,12 @@ def a_star(start, end):
             background()
             drawGrid()
             foreground()
+            weatherDisplay.weather(screen,  28.6139,  77.2090 )
+            weatherDisplay.weatherTwo(screen,  35.00,  45.2090 )
+            uielements.draw_fuel_estimation_button(screen)
+            uielements.draw_image_analysis_button(screen)
+            uielements.draw_retrain_model_button(screen)
+            uielements.draw_path_coordinates_button(screen)
 
             pygame.time.delay(500)
             
@@ -118,11 +130,16 @@ def get_neighbors(position):
     for dx, dy in directions:
         nx, ny = position[0] + dx, position[1] + dy
         if 0 <= nx < grid_width and 0 <= ny < grid_height:
-            neighbors.append((nx, ny))
+            # Check if the pixel color is not black (boundary check)
+            if not is_black_pixel(nx, ny):
+                neighbors.append((nx, ny))
     return neighbors
 
-# Map Boundary
-blocks = storage.Backup_black_cells
+# Function to check if a pixel is black
+def is_black_pixel(x, y):
+    pixel_color = screen.get_at((map_position[0] + x * grid_size + grid_size // 2,
+                                 map_position[1] + y * grid_size + grid_size // 2))
+    return pixel_color == BLACK
 
 # Main loop
 running = True
@@ -152,6 +169,12 @@ while running:
     background()
     drawGrid()
     foreground()
+    weatherDisplay.weather(screen,  28.6139,  77.2090 )
+    weatherDisplay.weatherTwo(screen,  35.00,  45.2090 )
+    uielements.draw_fuel_estimation_button(screen)
+    uielements.draw_image_analysis_button(screen)
+    uielements.draw_retrain_model_button(screen)
+    uielements.draw_path_coordinates_button(screen)
     
     # Draw the "Start" button
     uielements.draw_start_button(screen)  # Ensure the "Start" button is drawn
@@ -184,5 +207,3 @@ while running:
 
     pygame.display.flip()
     clock.tick(30)
-
-
