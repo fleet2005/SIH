@@ -106,6 +106,7 @@ def a_star(start, end):
                                          grid_size, grid_size))
                 pygame.display.flip()  # Update the screen to show the change
                 pygame.time.delay(200)  # Add a delay (in milliseconds) for each step
+                print(cell)
             
             # How long should the path persist
             pygame.time.delay(5000)
@@ -147,6 +148,8 @@ path_found = False  # New flag to check if the path has been found
 show_input_boxes = False  # Flag to control input box visibility
 start_button_clicked = False  # Flag to check if the start button is clicked
 exploration_done = False  # Flag to prevent multiple explorations
+selected_start = None # To store the start point : interactive click
+selected_end = None # To store the end point : interactive click
 
 while running:
     for event in pygame.event.get():
@@ -159,6 +162,33 @@ while running:
                 start_button_clicked = True  # Set the flag when the start button is clicked
                 exploration_done = False  # Reset exploration_done to allow a new search
             uielements.handle_mouse_click(event)
+        
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = event.pos
+            
+            if(map_position[0]<=mouse_x<map_position[0]+550 and map_position[1]<=mouse_y<map_position[1]+600):
+                grid_x = (mouse_x - map_position[0]) // grid_size
+                grid_y = (mouse_y - map_position[1]) // grid_size
+                
+                if selected_start is None:
+                    selected_start = (grid_x,grid_y)
+                elif selected_end is None:
+                    selected_end = (grid_x,grid_y)
+                else:
+                    selected_start, selected_end = None, None
+                
+        if selected_start:
+            pygame.draw.rect(screen, GREEN, (map_position[0] + selected_start[0] * grid_size,
+                                         map_position[1] + selected_start[1] * grid_size,
+                                         grid_size, grid_size))
+            
+        if selected_end:
+            pygame.draw.rect(screen, RED, (map_position[0] + selected_end[0] * grid_size,
+                                       map_position[1] + selected_end[1] * grid_size,
+                                       grid_size, grid_size))
+        
+        pygame.display.flip()
+
 
         if show_input_boxes:
             uielements.handle_input(event)
@@ -187,21 +217,35 @@ while running:
         uielements.draw_input_boxes(screen)
 
     # If the start button is clicked and coordinates are provided
-    if start_button_clicked and all(uielements.input_boxes) and not exploration_done:
+    if start_button_clicked and ((all(uielements.input_boxes)) or (selected_start != None and selected_end != None)) and not exploration_done:
         try:
-            start = (int(uielements.input_boxes[0]), int(uielements.input_boxes[1]))
-            end = (int(uielements.input_boxes[2]), int(uielements.input_boxes[3]))
-            if 0 <= start[0] < grid_width and 0 <= start[1] < grid_height and \
-               0 <= end[0] < grid_width and 0 <= end[1] < grid_height:
-                path, explored_nodes = a_star(start, end)
-                if path:
-                    path_found = True  # Mark that the path is found
-                    pygame.display.flip()  # Update the screen after drawing the path
+            if(all(uielements.input_boxes)):
+                start = (int(uielements.input_boxes[0]), int(uielements.input_boxes[1]))
+                end = (int(uielements.input_boxes[2]), int(uielements.input_boxes[3]))
+                if 0 <= start[0] < grid_width and 0 <= start[1] < grid_height and \
+                0 <= end[0] < grid_width and 0 <= end[1] < grid_height:
+                    path, explored_nodes = a_star(start, end)
+                    if path:
+                        path_found = True  # Mark that the path is found
+                        pygame.display.flip()  # Update the screen after drawing the path
+                    else:
+                        print("Path not found")
+                    exploration_done = True  # Set the flag to prevent further exploration
                 else:
-                    print("Path not found")
-                exploration_done = True  # Set the flag to prevent further exploration
+                    print("Invalid start or end coordinates")
+                    
             else:
-                print("Invalid start or end coordinates")
+                start = selected_start
+                end = selected_end
+                path, explored_nodes = a_star(start,end)
+                if path:
+                    path_found = True
+                    pygame.display.flip()
+                else:
+                    print("Path not Found")
+                
+                exploration_done = True                
+                
         except ValueError:
             print("Please enter valid integers for coordinates")
 
