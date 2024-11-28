@@ -108,7 +108,7 @@ black_cells = findBlackCells(image)  # Find black cells and store them
 print("Black cells found:", black_cells)  # Print the coordinates of black cells
 
 # Define the target cell (grid coordinates) to be marked in green
-target_cell = (121,51) # Replace this with the desired coordinates
+target_cell = (103,124) # Replace this with the desired coordinates
 
 while running:
     # Handle events

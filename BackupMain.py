@@ -2,8 +2,10 @@ import pygame
 import sys
 import math
 from queue import PriorityQueue
-import uielements  # Importing your UI elements file
+import uielements  # Importing UI elements file
+import storage # For the map boundary
 import weatherDisplay
+from CoordConv import latitude_to_grid, longitude_to_grid
 
 clock = pygame.time.Clock()
 
@@ -23,15 +25,15 @@ BLUE = (0, 0, 200)
 GREEN = (0, 150, 0)
 RED = (255, 0, 0)
 
-# Border Tips
+#Border Tips
 NORTH = (40,9)
-SOUTH = (49,135)
+SOUTH = (49,135) 
 WEST = (16,71)
 EAST = (121,51)
 
 # Grid properties
 grid_size = 4  # Size of each grid cell in pixels
-grid_width, grid_height = 550,600 # Number of cells in each dimension
+grid_width, grid_height = 550 // grid_size, 600 // grid_size  # Number of cells in each dimension
 
 # Background image positions
 map_position = (100, 70)
@@ -65,7 +67,7 @@ def a_star(start, end):
     came_from = {}
     g_score = {start: 0}
     f_score = {start: euclidean(start, end)}
-    explored_nodes = []
+    explored_nodes = []   
 
     while not open_set.empty():
         _, current = open_set.get()
@@ -89,7 +91,7 @@ def a_star(start, end):
             # Draw the background and grid again after exploration
             background()
             drawGrid()
-            foreground()
+            foreground()    
             weatherDisplay.weather(screen,  28.6139,  77.2090 )
             weatherDisplay.weatherTwo(screen,  35.00,  45.2090 )
             uielements.draw_fuel_estimation_button(screen)
@@ -106,7 +108,6 @@ def a_star(start, end):
                                          grid_size, grid_size))
                 pygame.display.flip()  # Update the screen to show the change
                 pygame.time.delay(200)  # Add a delay (in milliseconds) for each step
-                print(cell)
             
             # How long should the path persist
             pygame.time.delay(5000)
@@ -131,16 +132,12 @@ def get_neighbors(position):
     for dx, dy in directions:
         nx, ny = position[0] + dx, position[1] + dy
         if 0 <= nx < grid_width and 0 <= ny < grid_height:
-            # Check if the pixel color is not black (boundary check)
-            if not is_black_pixel(nx, ny):
+            if(nx, ny) not in blocks:
                 neighbors.append((nx, ny))
     return neighbors
 
-# Function to check if a pixel is black
-def is_black_pixel(x, y):
-    pixel_color = screen.get_at((map_position[0] + x * grid_size + grid_size // 2,
-                                 map_position[1] + y * grid_size + grid_size // 2))
-    return pixel_color == BLACK
+# Map Boundary
+blocks = storage.Backup_black_cells
 
 # Main loop
 running = True
@@ -148,7 +145,7 @@ path_found = False  # New flag to check if the path has been found
 show_input_boxes = False  # Flag to control input box visibility
 start_button_clicked = False  # Flag to check if the start button is clicked
 exploration_done = False  # Flag to prevent multiple explorations
-selected_start = None # To store the start point : interactive click
+selected_start = None  # To store the start point : interactive click
 selected_end = None # To store the end point : interactive click
 
 while running:
@@ -162,7 +159,7 @@ while running:
                 start_button_clicked = True  # Set the flag when the start button is clicked
                 exploration_done = False  # Reset exploration_done to allow a new search
             uielements.handle_mouse_click(event)
-        
+            
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = event.pos
             
@@ -188,7 +185,6 @@ while running:
                                        grid_size, grid_size))
         
         pygame.display.flip()
-
 
         if show_input_boxes:
             uielements.handle_input(event)
@@ -219,11 +215,21 @@ while running:
     # If the start button is clicked and coordinates are provided
     if start_button_clicked and ((all(uielements.input_boxes)) or (selected_start != None and selected_end != None)) and not exploration_done:
         try:
-            if(all(uielements.input_boxes)):
-                start = (int(uielements.input_boxes[0]), int(uielements.input_boxes[1]))
-                end = (int(uielements.input_boxes[2]), int(uielements.input_boxes[3]))
+            if all(uielements.input_boxes):
+                # Convert input latitudes and longitudes to grid coordinates
+                start_longitude = float(uielements.input_boxes[0])
+                start_latitude = float(uielements.input_boxes[1])
+                end_longitude = float(uielements.input_boxes[2])
+                end_latitude = float(uielements.input_boxes[3])
+                
+                # Use CoordConv functions to convert to grid coordinates
+                start = (longitude_to_grid(start_longitude), latitude_to_grid(start_latitude))
+                end = (longitude_to_grid(end_longitude), latitude_to_grid(end_latitude))
+                print(start,end)
+                # Validate the grid coordinates
                 if 0 <= start[0] < grid_width and 0 <= start[1] < grid_height and \
                 0 <= end[0] < grid_width and 0 <= end[1] < grid_height:
+                    # Call A* algorithm
                     path, explored_nodes = a_star(start, end)
                     if path:
                         path_found = True  # Mark that the path is found
