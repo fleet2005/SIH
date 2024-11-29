@@ -4,7 +4,7 @@ import math
 from queue import PriorityQueue
 import uielements  # Importing your UI elements file
 import weatherDisplay
-from CoordConv import latitude_to_grid, longitude_to_grid
+from CoordConv import grid_to_latitude, grid_to_longitude, latitude_to_grid, longitude_to_grid, round_longitude, round_latitude
 import storage  # For the map boundary
 
 clock = pygame.time.Clock()
@@ -60,10 +60,32 @@ def drawGrid():
 # A* Algorithm with new heuristic integration
 def euclidean(a, b):
     return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
+from heuristicRetriever import get_heuristic_value
 
 def h2_heuristic(node):
-    # Placeholder heuristic, replace with actual function later
-    return 1
+    """
+    Fetch the heuristic value for a given node (latitude, longitude).
+
+    Args:
+        node (tuple): Grid coordinates (x, y) of the current node.
+
+    Returns:
+        float: The heuristic value retrieved for the given node.
+               Defaults to 0.5 if no value is found.
+    """
+    # Convert grid coordinates to geographical coordinates (latitude, longitude)
+    grid_x, grid_y = node
+    latitude = round_latitude(grid_to_latitude(grid_y))
+    longitude = round_longitude(grid_to_longitude(grid_x))
+    
+    # Fetch the heuristic value
+    heuristic_value = get_heuristic_value(latitude, longitude)
+    
+    print(heuristic_value)
+    
+    # Default to 0.5 if the heuristic is not found
+    return heuristic_value if heuristic_value is not None else 0.5
+
 
 def a_star(start, end):
     open_set = PriorityQueue()

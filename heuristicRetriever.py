@@ -28,43 +28,18 @@ def get_heuristic_value(latitude, longitude, filename="heuristics_data.pkl"):
         filename (str): Name of the pickle file to load heuristics data.
     
     Returns:
-        float: Heuristic value for the coordinate, or None if not found.
+        float: Heuristic value for the coordinate. Returns 0.5 if the value is not found.
     """
     heuristics = load_heuristics(filename)
     
     if heuristics is None:
         print("Heuristics data is unavailable.")
-        return None
-    
+        return 0.5  # Default value if heuristics data is not loaded
+
     # Check if the coordinate exists in the heuristics dictionary
     coordinate = (longitude, latitude)  # Keys are stored as (longitude, latitude)
     if coordinate in heuristics:
-        print(f"Heuristic value for ({latitude}, {longitude}): {heuristics[coordinate]}")
         return heuristics[coordinate]
     else:
-        print(f"No heuristic value found for ({latitude}, {longitude}).")
-        return None
-
-def main():
-    """
-    Main function to test the retrieval of heuristic values.
-    """
-    print("Welcome to Heuristic Value Retriever!")
-    
-    # Input coordinates for testing
-    try:
-        latitude = float(input("Enter latitude: "))
-        longitude = float(input("Enter longitude: "))
-    except ValueError:
-        print("Invalid input! Please enter numeric values for latitude and longitude.")
-        return
-
-    # Retrieve and display the heuristic value
-    heuristic_value = get_heuristic_value(latitude, longitude)
-    if heuristic_value is not None:
-        print(f"Retrieved Heuristic Value: {heuristic_value}")
-    else:
-        print("Could not retrieve heuristic value.")
-
-if __name__ == "__main__":
-    main()
+        print(f"No heuristic value found for ({latitude}, {longitude}). Returning default value 0.5.")
+        return 0.5  # Default value if the coordinate is not found
