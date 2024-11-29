@@ -15,7 +15,8 @@ def grid_to_longitude(grid_x):
     easternmost_grid_x = 121
     longitude_per_cell = (easternmost_longitude - westernmost_longitude) / (easternmost_grid_x - westernmost_grid_x)
     longitude = westernmost_longitude + (grid_x - westernmost_grid_x) * longitude_per_cell
-    longitude = round(longitude / 0.250) * 0.250
+    # Modify rounding for longitude to nearest multiple of 0.250 starting from 0.125
+    longitude = round((longitude - 0.125) / 0.250) * 0.250 + 0.125
     return f"{longitude:.3f}"
 
 def latitude_to_grid(latitude):
@@ -38,15 +39,15 @@ def longitude_to_grid(longitude):
     grid_x = round(grid_x)
     return grid_x
 
-# running = True
+running = True
 
-# while running:
-#     # Testing grid to latitude and longitude
-#     print("Latitude = ", grid_to_latitude(11))
-#     print("Longitude = ", grid_to_longitude(515))
+while running:
+    # Testing grid to latitude and longitude
+    print("Latitude = ", grid_to_latitude(124))
+    print("Longitude = ", grid_to_longitude(105))
 
-#     # Testing latitude and longitude to grid
-#     print("Grid Y for latitude =", latitude_to_grid(10.58))
-#     print("Grid X for longitude = ", longitude_to_grid(92.49))
+    # Testing latitude and longitude to grid
+    print("Grid Y for latitude =", latitude_to_grid(10.80))
+    print("Grid X for longitude = ", longitude_to_grid(92.41))
     
-#     running = False
+    running = False
