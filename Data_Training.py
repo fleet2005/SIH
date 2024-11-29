@@ -113,7 +113,7 @@ class WeatherHeuristicTrainer:
         return np.clip(weighted_sum, 0, 1)
 
     def process_single_day(
-        self, date_str, prev_heuristics=None, prev_wind_direction=None, base_path="./"
+        self, date_str, prev_heuristics=None, prev_wind_direction=None, base_path="./split_by_date/"
     ):
         """Process data for a single day"""
         print(f"Processing {date_str}")
@@ -171,7 +171,7 @@ class WeatherHeuristicTrainer:
         plt.savefig(f"feature_importance_{date_str}.png")
         plt.close()
 
-    def process_all_days(self, start_date, end_date, base_path="./"):
+    def process_all_days(self, start_date, end_date, base_path="./split_by_date/"):
         """Process all days sequentially and return heuristics and wind deviation dictionaries"""
         current_date = start_date
         prev_heuristics = None
@@ -217,8 +217,8 @@ if __name__ == "__main__":
     trainer = WeatherHeuristicTrainer()
 
     # Set date range
-    start_date = datetime(2024, 11, 21)
-    end_date = datetime(2024, 11, 26)
+    start_date = datetime(2024, 11, 26)
+    end_date = datetime(2024, 12, 1)
 
     # Process all days and get dictionaries
     heuristics_dict, wind_deviation_dict = trainer.process_all_days(start_date, end_date)

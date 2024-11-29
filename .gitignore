@@ -1,2 +1,15 @@
 # .gitignore
 .env
+split_by_date
+daily_average_weather_data.csv
+feature_importance_2024-11-27.png
+feature_importance_2024-11-28.png
+feature_importance_2024-11-29.png
+feature_importance_2024-11-30.png
+feature_importance_2024-12-01.png
+final.csv
+heuristics_data.pkl
+weather_daily_data_final.csv
+weather_hourly_data_final.csv
+weather_processing_log_20241129_174426.txt
+__pycache__

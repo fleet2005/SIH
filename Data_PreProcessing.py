@@ -17,41 +17,9 @@ import sys
 import shutil
 from pathlib import Path
 
-
-def visualize_coverage(coordinates, bounds):
-    """
-    Visualize the coordinate coverage on a map.
-    """
-    lats, lons = zip(*coordinates)
-
-    plt.figure(figsize=(12, 8))
-    plt.scatter(lons, lats, c="blue", s=1, alpha=0.25, label="Sample Points")
-
-    # Plot the boundary
-    boundary_lats = [
-        bounds["bottom_left"][0],
-        bounds["top_left"][0],
-        bounds["top_right"][0],
-        bounds["bottom_right"][0],
-        bounds["bottom_left"][0],
-    ]
-    boundary_lons = [
-        bounds["bottom_left"][1],
-        bounds["top_left"][1],
-        bounds["top_right"][1],
-        bounds["bottom_right"][1],
-        bounds["bottom_left"][1],
-    ]
-    plt.plot(boundary_lons, boundary_lats, "r-", label="Boundary")
-
-    plt.grid(True)
-    plt.xlabel("Longitude")
-    plt.ylabel("Latitude")
-    plt.title("Coverage Map")
-    plt.legend()
-    plt.savefig("coverage_map.png")
-    plt.close()
-
+from shapely.geometry import Point, Polygon
+import numpy as np
+import itertools
 
 def generate_coordinates(
     bottom_right=(5.060000, 88.760000),
@@ -59,31 +27,42 @@ def generate_coordinates(
     top_left=(21.195000, 68.570000),
     bottom_left=(5.060000, 68.570000),
     step=0.25,
-):
-    """Generate coordinate pairs within the specified quadrilateral area."""
-    min_lat = min(bottom_right[0], bottom_left[0])
-    max_lat = max(top_right[0], top_left[0])
-    min_lon = min(bottom_left[1], top_left[1])
-    max_lon = max(bottom_right[1], top_right[1])
+): 
+    """
+    Generate all coordinates inside a quadrilateral with a given step size.
 
+    Args:
+        bottom_right (tuple): Bottom-right corner of the quadrilateral (lat, lon).
+        top_right (tuple): Top-right corner of the quadrilateral (lat, lon).
+        top_left (tuple): Top-left corner of the quadrilateral (lat, lon).
+        bottom_left (tuple): Bottom-left corner of the quadrilateral (lat, lon).
+        step (float): Step size for the grid.
+
+    Returns:
+        list: List of (latitude, longitude) tuples inside the quadrilateral.
+    """
+    # Define the quadrilateral polygon
+    polygon = Polygon([bottom_left, bottom_right, top_right, top_left])
+
+    # Determine the bounding box of the quadrilateral
+    min_lat = min(bottom_left[0], bottom_right[0], top_left[0], top_right[0])
+    max_lat = max(bottom_left[0], bottom_right[0], top_left[0], top_right[0])
+    min_lon = min(bottom_left[1], bottom_right[1], top_left[1], top_right[1])
+    max_lon = max(bottom_left[1], bottom_right[1], top_left[1], top_right[1])
+
+    # Generate the grid of points
     lats = np.arange(min_lat, max_lat + step, step)
     lons = np.arange(min_lon, max_lon + step, step)
-    coordinates = list(itertools.product(lats, lons))
+    grid_points = itertools.product(lats, lons)
 
-    bounds = {
-        "bottom_right": bottom_right,
-        "top_right": top_right,
-        "top_left": top_left,
-        "bottom_left": bottom_left,
-    }
+    # Filter points inside the quadrilateral
+    coordinates = [
+        (lat, lon)
+        for lat, lon in grid_points
+        if polygon.contains(Point(lat, lon))
+    ]
 
-    visualize_coverage(coordinates, bounds)
-
-    print(f"Generated {len(coordinates)} coordinate pairs")
-    print(f"Latitude range: {min_lat:.6f} to {max_lat:.6f}")
-    print(f"Longitude range: {min_lon:.6f} to {max_lon:.6f}")
-    print(f"Grid step size: {step}")
-
+    print(f"Generated {len(coordinates)} coordinate pairs inside the quadrilateral.")
     return coordinates
 
 
@@ -296,30 +275,35 @@ async def process_weather_data_async(
 
 def fix_hourly_data(input_file, output_file):
     """
-    Convert the date column to datetime and calculate daily averages.
+    Convert hourly weather data to daily averages while preserving date and coordinate information.
+    Args:
+    input_file (str): Path to the input CSV file with hourly data
+    output_file (str): Path to save the output CSV file with daily averages
+    Returns:
+    str: Path to the output file
     """
     # Load the CSV file
     data = pd.read_csv(input_file)
-
+    
     # Convert the date column to datetime and extract the date part
-    data["date"] = pd.to_datetime(data["date"]).dt.date
-
-    # Group by date, latitude, and longitude to calculate the daily average for all numeric columns
-    data_daily_avg = (
-        data.groupby(["date", "latitude", "longitude"]).mean().reset_index()
-    )
-
+    data['date'] = pd.to_datetime(data['date']).dt.date
+    
+    # Group by date, latitude, and longitude to calculate daily averages
+    daily_data = data.groupby(['date', 'latitude', 'longitude']).agg({
+        'pressure_msl': 'mean'  # Calculate daily average of pressure
+    }).reset_index()
+    
     # Save the daily average data to a new CSV
-    data_daily_avg.to_csv(output_file, index=False)
-
+    daily_data.to_csv(output_file, index=False)
+    
     print(f"Daily average data saved to {output_file}")
     return output_file
-
 
 def combine_csv_files(file1_path, file2_path, output_path):
     """
     Combine two CSV files with different columns, avoiding duplicate columns.
-    If the number of rows differs, fill the missing rows with column mean values for numeric columns.
+    If the number of rows differs, fill the missing rows with column mean values for numeric columns,
+    but keep date, longitude, and latitude values from the side with extra rows.
 
     Args:
     file1_path (str): Path to the first CSV file
@@ -334,57 +318,41 @@ def combine_csv_files(file1_path, file2_path, output_path):
         # Determine the max number of rows
         max_rows = max(len(df1), len(df2))
 
+        # Separate columns into types
+        date_cols = ['date', 'longitude', 'latitude']
+        numeric_cols1 = df1.select_dtypes(include="number").columns
+        numeric_cols2 = df2.select_dtypes(include="number").columns
+
         # Extend df1 if it's shorter
         if len(df1) < max_rows:
-            # Separate numeric and non-numeric columns
-            numeric_cols = df1.select_dtypes(include="number").columns
-            non_numeric_cols = df1.select_dtypes(exclude="number").columns
-
-            # Create missing rows with mean for numeric columns
-            means = {col: df1[col].mean() for col in numeric_cols}
+            # Calculate mean values for numeric columns (except date, longitude, latitude)
+            means = {col: df1[col].mean() for col in numeric_cols1 if col not in date_cols}
             missing_rows = pd.DataFrame([means] * (max_rows - len(df1)))
 
-            # Fill non-numeric columns with appropriate placeholders
-            for col in non_numeric_cols:
-                # Use the mode (most frequent value) for non-numeric columns
-                if df1[col].dtype == "object":
-                    missing_rows[col] = (
-                        df1[col].mode().iloc[0] if not df1[col].mode().empty else ""
-                    )
-                elif "datetime" in str(df1[col].dtype):
-                    # For datetime, use the last date
-                    missing_rows[col] = df1[col].max()
+            # Fill date, longitude, latitude columns with values from df2 (if df2 has more rows)
+            for col in date_cols:
+                if col in df2.columns:
+                    missing_rows[col] = df2[col].iloc[:max_rows - len(df1)].values
                 else:
-                    # For other types, use the first value or a default
-                    missing_rows[col] = df1[col].iloc[0]
+                    missing_rows[col] = df1[col].iloc[0]  # or any default value
 
             df1 = pd.concat([df1, missing_rows], ignore_index=True)
 
         # Extend df2 if it's shorter (using the same logic)
         if len(df2) < max_rows:
-            # Separate numeric and non-numeric columns
-            numeric_cols = df2.select_dtypes(include="number").columns
-            non_numeric_cols = df2.select_dtypes(exclude="number").columns
-
-            # Create missing rows with mean for numeric columns
-            means = {col: df2[col].mean() for col in numeric_cols}
+            # Calculate mean values for numeric columns (except date, longitude, latitude)
+            means = {col: df2[col].mean() for col in numeric_cols2 if col not in date_cols}
             missing_rows = pd.DataFrame([means] * (max_rows - len(df2)))
 
-            # Fill non-numeric columns with appropriate placeholders
-            for col in non_numeric_cols:
-                # Use the mode (most frequent value) for non-numeric columns
-                if df2[col].dtype == "object":
-                    missing_rows[col] = (
-                        df2[col].mode().iloc[0] if not df2[col].mode().empty else ""
-                    )
-                elif "datetime" in str(df2[col].dtype):
-                    # For datetime, use the last date
-                    missing_rows[col] = df2[col].max()
+            # Fill date, longitude, latitude columns with values from df1 (if df1 has more rows)
+            for col in date_cols:
+                if col in df1.columns:
+                    missing_rows[col] = df1[col].iloc[:max_rows - len(df2)].values
                 else:
-                    # For other types, use the first value or a default
-                    missing_rows[col] = df2[col].iloc[0]
+                    missing_rows[col] = df2[col].iloc[0]  # or any default value
 
             df2 = pd.concat([df2, missing_rows], ignore_index=True)
+
         # Identify unique columns from both dataframes
         unique_columns1 = set(df1.columns)
         unique_columns2 = set(df2.columns)
@@ -415,39 +383,32 @@ def combine_csv_files(file1_path, file2_path, output_path):
         print(f"An unexpected error occurred: {e}")
 
 
-def split_data_by_date(input_file, output_dir):
+def split_data_evenly(input_file, output_dir):
     """
-    Split the combined data file into separate CSV files by unique dates,
-    preserving all columns.
-
+    Split the combined data file into an equal number of rows across specified splits.
+    
     Args:
-        input_file (str): Path to the input combined CSV file
-        output_dir (str): Directory to save the split CSV files
+        input_file (str): Path to the input combined CSV file.
+        output_dir (str): Directory to save the split CSV files.
+        num_splits (int): Number of splits required.
+    
+    Returns:
+        str: Path to the output directory.
     """
-    # Read the entire combined data file
+    # Read the data
     data = pd.read_csv(input_file)
-
-    # Create output directory if it doesn't exist
+    
+    unique_dates = data['date'].unique()
+    output_dir = 'split_by_date'
     output_dir_path = Path(output_dir)
     output_dir_path.mkdir(exist_ok=True)
 
-    # Get unique dates from the date column
-    unique_dates = data["date"].unique()
-
-    # Split and save data for each unique date
     for date in unique_dates:
-        # Filter data for the specific date
-        date_data = data[data["date"] == date]
-
-        # Create output filename with the date
+        date_data = data[data['date'] == date].drop(columns=['date'])
+        
         output_file = output_dir_path / f"data_{date}.csv"
-
-        # Save the filtered data, including all columns
         date_data.to_csv(output_file, index=False)
-
-    print(f"Data split successfully. Files saved in: {output_dir}")
     return output_dir
-
 
 def main():
     print("Starting Comprehensive Weather Data Processing...")
@@ -461,16 +422,17 @@ def main():
     print("\n--- Step 2: Fixing Hourly Data ---")
     daily_avg_file = "daily_average_weather_data.csv"
     fix_hourly_data(hourly_file, daily_avg_file)
+    # daily_file="weather_daily_data_final.csv"
 
-    # Step 3: Combine data files
+    # # Step 3: Combine data files
     print("\n--- Step 3: Combining Data Files ---")
     combined_file = "final.csv"
     combine_csv_files(daily_avg_file, daily_file, combined_file)
 
-    # Step 4: Split data by date
+    # Step 4: Split data by date    
     print("\n--- Step 4: Splitting Data by Date ---")
     output_dir = "split_data_outputs"
-    split_data_by_date(combined_file, output_dir)
+    split_data_evenly(combined_file, output_dir)
 
     print("\nWeather Data Processing Complete!")
 
