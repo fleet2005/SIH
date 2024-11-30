@@ -7,18 +7,22 @@ import weatherDisplay
 from CoordConv import grid_to_latitude, grid_to_longitude, latitude_to_grid, longitude_to_grid, round_longitude, round_latitude
 import storage  # For the map boundary
 from heuristicRetriever import HeuristicRetriever
+from intro_animation import play_intro_animation  # Import the intro animation module
 
 clock = pygame.time.Clock()
 
 # Initialize Pygame
 pygame.init()
 heuristic_retriever = HeuristicRetriever()
+intro_video_path = "./Countdown1.mp4"
 
 # Set up the display
 info = pygame.display.Info()  # Get display information
 screen_width, screen_height = info.current_w, info.current_h
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
 pygame.display.set_caption("Ship Navigation Algo")
+
+play_intro_animation(screen, intro_video_path, screen_width, screen_height)
 
 # Colors
 WHITE = (255, 255, 255)
