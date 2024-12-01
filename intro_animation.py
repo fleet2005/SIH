@@ -62,7 +62,7 @@ def play_intro_animation(screen, intro_video_path, screen_width, screen_height):
                     return
 
             # Delay to match video fps using Pygame clock for better accuracy
-            clock.tick(120)
+            clock.tick(100)
 
         # Release the video capture object after playing the video
         cap.release()

@@ -23,6 +23,8 @@ screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREE
 pygame.display.set_caption("Ship Navigation Algo")
 
 play_intro_animation(screen, intro_video_path, screen_width, screen_height)
+background_image = pygame.image.load("background.jpg")  # Replace with your image path
+background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
 
 # Colors
 WHITE = (255, 255, 255)
@@ -215,7 +217,7 @@ while running:
         if show_input_boxes:
             uielements.handle_input(event)
 
-    screen.fill((0, 0, 140))
+    screen.blit(background_image, (0, 0))  # Draw the background image
 
     # Draw background and grid
     background()
