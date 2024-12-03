@@ -75,6 +75,7 @@ def h2_heuristic(node):
     longitude = round_longitude(grid_to_longitude(grid_x))
     
     heuristic_value = heuristic_retriever.get_heuristic_value(latitude, longitude)
+    print("h2:", heuristic_value)
     return heuristic_value
 
 def a_star(start, end):
@@ -125,7 +126,7 @@ def a_star(start, end):
                                                  grid_size, grid_size))
                 pygame.display.flip()
                 pygame.time.delay(200)
-                print(f_score[cell])
+                print("Path:",cell)
                 
             pygame.time.delay(5000)
             

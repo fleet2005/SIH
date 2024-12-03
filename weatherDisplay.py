@@ -3,10 +3,20 @@ import requests
 import os
 from dotenv import load_dotenv
 
-# Colors
+# Initialize Pygame
+pygame.init()
+
+# Constants
 WHITE = (255, 255, 255)
-TEXT_COLOR = (200, 200, 200)
+TEXT_COLOR = WHITE
 BACKGROUND_COLOR = (30, 30, 30)
+BORDER_COLOR = (128, 128, 128)
+SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
+BLACK = (0, 0, 0)
+
+# Fonts
+def load_custom_font(size):
+    return pygame.font.Font(None, size)  # Use a custom font path if desired.
 
 # Load API Key
 load_dotenv()
@@ -29,19 +39,26 @@ def get_weather_data(latitude, longitude):
     else:
         return {"error": "Unable to fetch weather data"}
 
-# Function to display weather in the 4th quadrant
+# Function to display weather for the first location (departure)
 def weather(screen, latitude, longitude):
     # Fetch weather data
     weather_data = get_weather_data(latitude, longitude)
 
     # Set up font and positioning
-    font = pygame.font.Font(None, 36)
-    label_font = pygame.font.Font(None, 28)
-    x_position = screen.get_width() * 3 // 4  # Start drawing in the 4th quadrant
-    y_position = screen.get_height() * 3 // 4 -50  # Adjust Y position for quadrant
+    weather_font = load_custom_font(24)
+    label_font = load_custom_font(32)
+    x_position = SCREEN_WIDTH * 3 // 4 + 80  # Shift right by 240 pixels
+    y_position = SCREEN_HEIGHT * 3 // 4 + 15 # Adjust Y position for quadrant
 
-    # Draw a background box for better visibility
+    # Box properties
     box_width, box_height = 240, 180
+
+    # Draw "Departure" label
+    departure_label = label_font.render("Departure", True, BLACK)
+    screen.blit(departure_label, (x_position + (box_width // 2 - departure_label.get_width() // 2), y_position - 40))
+
+    # Draw the weather box with a grey border
+    pygame.draw.rect(screen, BORDER_COLOR, (x_position - 2, y_position - 2, box_width + 4, box_height + 4), border_radius=10)
     pygame.draw.rect(screen, BACKGROUND_COLOR, (x_position, y_position, box_width, box_height), border_radius=10)
 
     # Render weather data
@@ -58,21 +75,29 @@ def weather(screen, latitude, longitude):
 
     # Display weather information
     for i, text in enumerate(weather_text):
-        label = label_font.render(text, True, TEXT_COLOR)
+        label = weather_font.render(text, True, TEXT_COLOR)
         screen.blit(label, (x_position + 10, y_position + 20 + (i * 30)))  # Adjust line spacing
 
+# Function to display weather for the second location (destination)
 def weatherTwo(screen, latitude, longitude):
     # Fetch weather data
     weather_data = get_weather_data(latitude, longitude)
 
     # Set up font and positioning
-    font = pygame.font.Font(None, 36)
-    label_font = pygame.font.Font(None, 28)
-    x_position = screen.get_width() * 3 // 4 -280 # Start drawing in the 4th quadrant
-    y_position = screen.get_height() * 3 // 4 -50 # Adjust Y position for quadrant
+    weather_font = load_custom_font(24)
+    label_font = load_custom_font(32)
+    x_position = SCREEN_WIDTH * 3 // 4 + 350  # Shift right by 240 pixels
+    y_position = SCREEN_HEIGHT * 3 // 4 + 15  # Adjust Y position for quadrant
 
-    # Draw a background box for better visibility
+    # Box properties
     box_width, box_height = 240, 180
+
+    # Draw "Destination" label
+    destination_label = label_font.render("Destination", True, BLACK)
+    screen.blit(destination_label, (x_position + (box_width // 2 - destination_label.get_width() // 2), y_position - 40))
+
+    # Draw the weather box with a grey border
+    pygame.draw.rect(screen, BORDER_COLOR, (x_position - 2, y_position - 2, box_width + 4, box_height + 4), border_radius=10)
     pygame.draw.rect(screen, BACKGROUND_COLOR, (x_position, y_position, box_width, box_height), border_radius=10)
 
     # Render weather data
@@ -89,5 +114,6 @@ def weatherTwo(screen, latitude, longitude):
 
     # Display weather information
     for i, text in enumerate(weather_text):
-        label = label_font.render(text, True, TEXT_COLOR)
+        label = weather_font.render(text, True, TEXT_COLOR)
         screen.blit(label, (x_position + 10, y_position + 20 + (i * 30)))  # Adjust line spacing
+ 
