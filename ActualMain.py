@@ -78,12 +78,26 @@ def h2_heuristic(node):
     print("h2:", heuristic_value)
     return heuristic_value
 
-def a_star(start, end):
+#adjust this on the day of hackathon
+def calculate_fscore(g_score, current, neighbor, end, is_first_box_green, is_second_box_green):
+    if is_second_box_green: #passenger
+        # f-score equation based on the second box being green
+        f_score = 0.2 * g_score + 0.1 * euclidean(neighbor, end) + 15 * h2_heuristic(neighbor)
+    elif is_first_box_green: #cargo
+        # f-score equation based on the first box being green (assigning 0.1 weights)
+        f_score = 0.5 * g_score + 0.5 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
+    else:
+        # Default f-score equation
+        f_score = 0.5 * g_score + 0.4 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
+    
+    return f_score
+
+def a_star(start, end, is_first_box_green, is_second_box_green):
     open_set = PriorityQueue()
     open_set.put((0, start))
     came_from = {}
     g_score = {start: 0}
-    f_score = {start: 0.5 * g_score[start] + 0.4 * euclidean(start, end) + 0.1 * h2_heuristic(start)}
+    f_score = {start: calculate_fscore(g_score[start], start, start, end, is_first_box_green, is_second_box_green)}
     explored_nodes = []
 
     while not open_set.empty():
@@ -105,7 +119,7 @@ def a_star(start, end):
                 current = came_from[current]
             path.reverse()
             
-            #reconstructing the green path
+            # Reconstructing the green path
             background()
             drawGrid()
             foreground()
@@ -126,7 +140,7 @@ def a_star(start, end):
                                                  grid_size, grid_size))
                 pygame.display.flip()
                 pygame.time.delay(200)
-                print("Path:",cell)
+                print("Path:", cell)
                 
             pygame.time.delay(5000)
             
@@ -135,11 +149,8 @@ def a_star(start, end):
         neighbors = get_neighbors(current)
         for neighbor in neighbors:
             tentative_g_score = g_score[current] + euclidean(current, neighbor)
-            tentative_f_score = (
-                0.5 * tentative_g_score
-                + 0.4 * euclidean(neighbor, end)
-                + 0.1 * h2_heuristic(neighbor)
-            )
+            tentative_f_score = calculate_fscore(tentative_g_score, current, neighbor, end, is_first_box_green, is_second_box_green)
+            
             if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
                 came_from[neighbor] = current
                 g_score[neighbor] = tentative_g_score
@@ -241,6 +252,11 @@ while running:
     if show_input_boxes:
         uielements.draw_input_boxes(screen)
 
+    uielements.draw_new_input_boxes(screen)
+    
+    cargo, passenger = uielements.new_input_boxes[0], uielements.new_input_boxes[1]
+    
+
     # If the start button is clicked and coordinates are provided
     if start_button_clicked and ((all(uielements.input_boxes)) or (selected_start != None and selected_end != None)) and not exploration_done:
         try:
@@ -259,7 +275,7 @@ while running:
                 if 0 <= start[0] < grid_width and 0 <= start[1] < grid_height and \
                 0 <= end[0] < grid_width and 0 <= end[1] < grid_height:
                     # Call A* algorithm
-                    path, explored_nodes = a_star(start, end)
+                    path, explored_nodes = a_star(start, end, cargo, passenger)
                     if path:
                         path_found = True  # Mark that the path is found
                         pygame.display.flip()  # Update the screen after drawing the path
@@ -272,7 +288,7 @@ while running:
             else:
                 start = selected_start
                 end = selected_end
-                path, explored_nodes = a_star(start,end)
+                path, explored_nodes = a_star(start,end, cargo, passenger)
                 if path:
                     path_found = True
                     pygame.display.flip()

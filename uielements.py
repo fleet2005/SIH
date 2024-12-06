@@ -2,8 +2,10 @@ import pygame
 
 # Colors
 WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
 INPUT_BOX_COLOR = (0, 0, 255)
-LABEL_COLOR = (0,0,0)
+LABEL_COLOR = (0, 0, 0)
 MANUAL_COLOR_TOP = (255, 100, 100)
 MANUAL_COLOR_BOTTOM = (200, 50, 50)
 AUTOMATIC_COLOR_TOP = (100, 255, 100)
@@ -16,11 +18,12 @@ CLICK_EFFECT_COLOR_BOTTOM = (0, 50, 100)
 
 # Input box properties
 input_boxes_position = [(670, 70), (670, 120), (910, 70), (910, 120)]
+new_input_boxes_position = [(950, 280), (950, 340)]  # New input boxes below buttons
 input_box_width = 50 * 1.8  # Increased by 80%
 input_box_height = 40 * 1.1  # Increased by 10%
 input_boxes = ["", "", "", ""]
+new_input_boxes = [False, False]  # To track the clicked state of the new input boxes
 active_box = None
-
 
 # Function to draw gradient-filled rounded rectangles
 def draw_gradient_button(screen, rect, color_top, color_bottom, border_radius=12):
@@ -34,20 +37,32 @@ def draw_gradient_button(screen, rect, color_top, color_bottom, border_radius=12
     pygame.draw.rect(screen, BUTTON_BORDER_COLOR, rect, width=1, border_radius=border_radius)
     screen.blit(gradient_surface, rect.topleft)
 
-
 # Draw the input boxes with labels
 def draw_input_boxes(screen):
     font = pygame.font.Font(None, 36)
     label_font = pygame.font.Font(None, 28)
-    labels = ["Departure X:", "Departure Y:", "Destination X ", "Destination Y "]
-
+    labels = ["Departure X:", "Departure Y:", "Destination X:", "Destination Y:"]
+    
     for i, pos in enumerate(input_boxes_position):
         label_text = label_font.render(labels[i], True, LABEL_COLOR)
-        screen.blit(label_text, (pos[0] - 5, pos[1]))
+        screen.blit(label_text, (pos[0] - 7, pos[1]))  # Adjusted label position
         pygame.draw.rect(screen, INPUT_BOX_COLOR, (pos[0] + 130, pos[1] - 10, input_box_width, input_box_height), 2)
         text = font.render(input_boxes[i], True, WHITE)
         screen.blit(text, (pos[0] + 135, pos[1] - 3))
 
+# Draw the new input boxes with labels
+def draw_new_input_boxes(screen):
+    label_font = pygame.font.Font(None, 28)
+    new_labels = ["C", "P"]
+    
+    for i, pos in enumerate(new_input_boxes_position):
+        # Draw labels
+        label_text = label_font.render(new_labels[i], True, LABEL_COLOR)
+        screen.blit(label_text, (pos[0] + 20, pos[1]+33))  # Adjusted label position for new input boxes
+        
+        # Draw the input box
+        color = GREEN if new_input_boxes[i] else RED
+        pygame.draw.rect(screen, color, (pos[0] - 67, pos[1] + 20, input_box_width - 5, input_box_height), border_radius=10)
 
 # Handle keyboard input for the active box
 def handle_input(event):
@@ -61,7 +76,6 @@ def handle_input(event):
             else:
                 input_boxes[active_box] += event.unicode
 
-
 # Handle mouse click to select the active input box
 def handle_mouse_click(event):
     global active_box
@@ -70,6 +84,15 @@ def handle_mouse_click(event):
             active_box = i
             break
 
+    # Check for clicks on the new input boxes
+    for i, pos in enumerate(new_input_boxes_position):
+        if pygame.Rect(pos[0] - 67, pos[1] + 20, input_box_width - 5, input_box_height).collidepoint(event.pos):
+            # Set all input boxes to inactive (red)
+            for j in range(len(new_input_boxes)):
+                new_input_boxes[j] = False
+            # Activate the clicked input box (green)
+            new_input_boxes[i] = True
+            break
 
 # Draw "Manual" / "Automatic" button
 def draw_button(screen, show_input_boxes, is_clicked=False):
@@ -95,7 +118,6 @@ def draw_button(screen, show_input_boxes, is_clicked=False):
                                        button_rect.centery - button_text_rendered.get_height() // 2))
     return button_rect
 
-
 # Draw "Start" button with modern and on-click effects
 def draw_start_button(screen, is_clicked=False):
     button_rect = pygame.Rect(950, 200, 220, 60)
@@ -118,21 +140,17 @@ def draw_start_button(screen, is_clicked=False):
                        button_rect.centery - text.get_height() // 2))
     return button_rect
 
-
 # Placeholder for "Fuel Estimation" button
 def draw_fuel_estimation_button(screen):
     pass
-
 
 # Placeholder for "Image Analysis" button
 def draw_image_analysis_button(screen):
     pass
 
-
 # Placeholder for "Retrain Model" button
 def draw_retrain_model_button(screen):
     pass
-
 
 # Placeholder for "Path Coordinates" button
 def draw_path_coordinates_button(screen):
