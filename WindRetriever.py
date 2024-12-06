@@ -17,11 +17,5 @@ class WindDirectionRetriever:
         else:
             return 0  # Default value
 
-# Example usage:
 retriever = WindDirectionRetriever()  # Load the pickle file only once
-
-longitude = 69.875
-latitude = 5.25
-wind_direction = retriever.retrieve_wind_direction(longitude, latitude)
-
-print(f"Wind direction at longitude {longitude} and latitude {latitude}: {wind_direction}")
+ 
