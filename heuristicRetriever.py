@@ -7,13 +7,10 @@ class HeuristicRetriever:
 
     def load_heuristics(self):
         """
-        Load the heuristics and wind deviation dictionaries from a pickle file.
-        
-        Args:
-            filename (str): Name of the pickle file.
+        Load the heuristics dictionary from a pickle file.
         
         Returns:
-            dict: The heuristics dictionary or None if loading fails.
+            dict: The heuristics dictionary or an empty dictionary if loading fails.
         """
         try:
             with open(self.filename, "rb") as f:
@@ -41,6 +38,19 @@ class HeuristicRetriever:
             print(f"No heuristic value found for ({latitude}, {longitude}). Returning default value 0.5.")
             return 0.5  # Default value if the coordinate is not found
 
-# Usage
-heuristic_retriever = HeuristicRetriever()  # Load heuristics once during initialization
- 
+
+# Test the retrieval directly
+heuristic_retriever = HeuristicRetriever("heuristics_data.pkl")  # Initialize with existing file
+
+# Test cases
+test_coordinates = [
+    (5.25, 68.875),  # Example coordinate that may exist in the file
+    (6.75, 70.125),  # Example coordinate that may exist in the file
+    (7.25, 72.875),  # Example coordinate that may exist in the file
+    (8.0, 73.0)      # Example coordinate that may not exist
+]
+
+# Retrieve and print heuristic values
+for lat, lon in test_coordinates:
+    heuristic = heuristic_retriever.get_heuristic_value(lat, lon)
+    print(f"Heuristic value for ({lat}, {lon}): {heuristic}")
