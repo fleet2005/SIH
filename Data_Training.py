@@ -37,6 +37,8 @@ class WeatherHeuristicTrainer:
             # For scalar input
             return min(deviation, 360 - deviation)
 
+    #before changing weight and demonstrating make sure to first delete the existing heuristics_data.pkl before calling the heuristics generator.
+    #modify weight->call the generator -> show the difference in the graph and also the retrieved heuristic data using heur_retriever function.
     def __init__(self):
         self.feature_weights = {
             "prev_heuristic": 0.40,  # 50% weight for previous heuristic
