@@ -44,14 +44,14 @@ def round_latitude(latitude):
     Rounds a latitude to the nearest multiple of 0.250.
     """
     rounded_latitude = round(latitude / 0.250) * 0.250
-    return round(rounded_latitude, 3)  # Return as float, not string
+    return round(rounded_latitude, 3)  
 
 def round_longitude(longitude):
     """
     Rounds a longitude to the nearest multiple of 0.250, starting from 0.125.
     """
     rounded_longitude = round((longitude - 0.125) / 0.250) * 0.250 + 0.125
-    return round(rounded_longitude, 3)  # Return as float, not string
+    return round(rounded_longitude, 3)   
 
 running = True
 

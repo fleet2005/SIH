@@ -56,9 +56,9 @@ for lat, lon in test_coordinates:
     print(f"Heuristic value for ({lat}, {lon}): {heuristic}")
 
 
-# Heuristic value for (5.25, 68.875): 0.21054254472255707
-# Heuristic value for (6.75, 70.125): 0.13524644076824188
-# Heuristic value for (7.25, 72.875): 0.13910818099975586
+# Heuristic value for (5.25, 68.875): 0.21252335608005524
+# Heuristic value for (6.75, 70.125): 0.13584813475608826
+# Heuristic value for (7.25, 72.875): 0.13651037216186523
 # No heuristic value found for (8.0, 73.0). Returning default value 0.5.
 # Heuristic value for (8.0, 73.0): 0.5
 

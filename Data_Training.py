@@ -41,8 +41,8 @@ class WeatherHeuristicTrainer:
     #modify weight->call the generator -> show the difference in the graph and also the retrieved heuristic data using heur_retriever function.
     def __init__(self):
         self.feature_weights = {
-            "prev_heuristic": 0.40,  # 50% weight for previous heuristic
-            "TP":0.10,
+            "prev_heuristic": 0.40,  # 40% weight for previous heuristic
+            "TP": 0.10, # 10% for peak wave period
             "pressure_msl": 0.15,  # 15% for pressure
             "temp_variation": 0.15,  # 15% for temperature variation
             "precipitation": 0.10,  # 10% for precipitation
@@ -102,6 +102,9 @@ class WeatherHeuristicTrainer:
 
         # Prepare features DataFrame
         X = pd.DataFrame(features)
+        
+        # Drop latitude and longitude
+        X.drop(columns=["Latitude", "Longitude"], inplace=True, errors="ignore")
 
         # Fill NaN values with mean
         X.fillna(X.mean(), inplace=True)

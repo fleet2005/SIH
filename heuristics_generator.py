@@ -24,6 +24,7 @@ def main():
     if heuristics_dict is None or wind_deviation_dict is None:
         # If no saved data, process and generate heuristics
         trainer = WeatherHeuristicTrainer()
+        # Modify the date range if the training files dates are changed
         start_date = datetime(2024, 8, 29)
         end_date = datetime(2024, 9, 3)
         heuristics_dict, wind_deviation_dict = trainer.process_all_days(start_date, end_date)
