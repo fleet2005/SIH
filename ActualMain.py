@@ -3,13 +3,13 @@ import sys
 import math
 from queue import PriorityQueue
 import uielements  # Importing your UI elements file
+from uielements import horizontal_buttons
 import weatherDisplay
 from CoordConv import grid_to_latitude, grid_to_longitude, latitude_to_grid, longitude_to_grid, round_longitude, round_latitude
 import storage  # For the map boundary
 from heuristicRetriever import HeuristicRetriever
 from intro_animation import play_intro_animation  # Import the intro animation module
 import WindRetriever
-from depthCells import retrieve_depth
 
 clock = pygame.time.Clock()
 
@@ -24,7 +24,7 @@ screen_width, screen_height = info.current_w, info.current_h
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
 pygame.display.set_caption("Ship Navigation Algo")
 
-play_intro_animation(screen, intro_video_path, screen_width, screen_height)
+#play_intro_animation(screen, intro_video_path, screen_width, screen_height)
 background_image = pygame.image.load("background.jpg")  # Replace with your image path
 background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
 
@@ -120,20 +120,36 @@ def h2_heuristic(node):
 #adjust this on the day of hackathon
 def calculate_fscore(g_score, current, neighbor, end, is_first_box_green, is_second_box_green, wind_alignment):
     if is_second_box_green:  # passenger
-        # f-score equation based on the second box being green
-        f_score = 0.2 * g_score + 0.1 * euclidean(neighbor, end) + 1 * h2_heuristic(neighbor)  
+        if horizontal_buttons[0]:  # Fast mode
+            f_score = 0.8 * g_score + 0.1 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
+        elif horizontal_buttons[1]:  # Safe mode
+            f_score = 0.2 * g_score + 0.1 * euclidean(neighbor, end) + 0.7 * h2_heuristic(neighbor)
+        elif horizontal_buttons[2]:  # Eco mode
+            f_score = 0.3 * g_score + 0.2 * euclidean(neighbor, end) + 0.5 * h2_heuristic(neighbor)
+        else:  # Default passenger mode
+            f_score = 0.2 * g_score + 0.1 * euclidean(neighbor, end) + 1 * h2_heuristic(neighbor)
     elif is_first_box_green:  # cargo
-        # f-score equation based on the first box being green
-        f_score = 0.5 * g_score + 0.5 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
+        if horizontal_buttons[0]:  # Fast mode
+            f_score = 0.7 * g_score + 0.2 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
+        elif horizontal_buttons[1]:  # Safe mode
+            f_score = 0.3 * g_score + 0.3 * euclidean(neighbor, end) + 0.4 * h2_heuristic(neighbor)
+        elif horizontal_buttons[2]:  # Eco mode
+            f_score = 0.4 * g_score + 0.4 * euclidean(neighbor, end) + 0.2 * h2_heuristic(neighbor)
+        else:  # Default cargo mode
+            f_score = 0.5 * g_score + 0.5 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
     else:
-        # Default f-score equation
-        f_score = 0.5 * g_score + 0.4 * euclidean(neighbor, end) + 1 * h2_heuristic(neighbor)
+        if horizontal_buttons[0]:  # Fast mode
+            f_score = 0.7 * g_score + 0.2 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
+        elif horizontal_buttons[1]:  # Safe mode
+            f_score = 0.3 * g_score + 0.3 * euclidean(neighbor, end) + 0.4 * h2_heuristic(neighbor)
+        elif horizontal_buttons[2]:  # Eco mode
+            f_score = 0.4 * g_score + 0.4 * euclidean(neighbor, end) + 0.2 * h2_heuristic(neighbor)
+        else:  # Default mode
+            f_score = 0.5 * g_score + 0.4 * euclidean(neighbor, end) + 1 * h2_heuristic(neighbor)
     
-    # Adjust f-score based on wind alignment (if aligned with the wind, give a bonus)
     if wind_alignment == 1:
-        f_score *= 0.9 # Apply a weight (e.g., 0.9) to favor wind-aligned movement
+        f_score *= 0.9
     
-     
     return f_score
 
 
@@ -214,7 +230,7 @@ def get_neighbors(position):
     for dx, dy in directions:
         nx, ny = position[0] + dx, position[1] + dy
         if 0 <= nx < grid_width/grid_size and 0 <= ny < grid_height/grid_size:
-            if not is_black_pixel(nx, ny) and (nx, ny) not in blocks and retrieve_depth(nx,ny) < -40:
+            if not is_black_pixel(nx, ny) and (nx, ny) not in blocks:
                 # Check if the movement is aligned with the wind
                 wind_alignment = is_aligned_with_wind(position[0]+dx, position[1]+dy, dx, dy)
                 # Append the neighbor along with the wind alignment value

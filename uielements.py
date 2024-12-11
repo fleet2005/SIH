@@ -17,12 +17,14 @@ CLICK_EFFECT_COLOR_TOP = (0, 80, 150)
 CLICK_EFFECT_COLOR_BOTTOM = (0, 50, 100)
 
 # Input box properties
-input_boxes_position = [(670, 70), (670, 120), (910, 70), (910, 120)]
-new_input_boxes_position = [(950, 280), (950, 340)]  # New input boxes below buttons
-input_box_width = 50 * 1.8  # Increased by 80%
-input_box_height = 40 * 1.1  # Increased by 10%
+input_boxes_position = [(690, 70), (670, 120), (910, 70), (910, 120)]
+new_input_boxes_position = [(775, 280), (775, 340)]  # New input boxes below buttons
+horizontal_buttons_position = [(915, 310), (1015, 310), (1115, 310)]  # New horizontal buttons
+input_box_width = 50 * 1.8
+input_box_height = 40 * 1.1
 input_boxes = ["", "", "", ""]
-new_input_boxes = [False, False]  # To track the clicked state of the new input boxes
+new_input_boxes = [False, False]
+horizontal_buttons = [False, False, False]  # Track state of horizontal buttons
 active_box = None
 
 # Function to draw gradient-filled rounded rectangles
@@ -54,16 +56,68 @@ def draw_input_boxes(screen):
 def draw_new_input_boxes(screen):
     label_font = pygame.font.Font(None, 28)
     new_labels = ["C", "P"]
+    horizontal_labels = ["Fuel", "Speed", "Comfort"]  # Labels for horizontal buttons
     
+    # Custom colors for horizontal buttons
+    horizontal_colors = [
+        ((255, 165, 0), (255, 120, 0)),    # Brown gradient for Fuel
+        ((0, 191, 255), (0, 150, 255)),   # Blue gradient for Speed
+        ((255, 105, 180), (255, 20, 147))     # Purple gradient for Comfort
+    ]
+    
+    # Draw C and P boxes (keeping original style)
     for i, pos in enumerate(new_input_boxes_position):
-        # Draw labels
-        label_text = label_font.render(new_labels[i], True, LABEL_COLOR)
-        screen.blit(label_text, (pos[0] + 20, pos[1]+33))  # Adjusted label position for new input boxes
-        
-        # Draw the input box
         color = GREEN if new_input_boxes[i] else RED
-        pygame.draw.rect(screen, color, (pos[0] - 67, pos[1] + 20, input_box_width - 5, input_box_height), border_radius=10)
-
+        box_rect = pygame.Rect(pos[0] - 67, pos[1] + 20, input_box_width - 5, input_box_height)
+        pygame.draw.rect(screen, color, box_rect, border_radius=10)
+        
+        label_text = label_font.render(new_labels[i], True, WHITE)
+        label_x = box_rect.centerx - label_text.get_width() // 2
+        label_y = box_rect.centery - label_text.get_height() // 2
+        screen.blit(label_text, (label_x, label_y))
+    
+    # Draw horizontal buttons with gradient and different shape
+    for i, pos in enumerate(horizontal_buttons_position):
+        # Determine button state color
+        if horizontal_buttons[i]:
+            color_top, color_bottom = horizontal_colors[i]
+        else:
+            # Desaturated version of the gradient when not active
+            color_top = tuple(int(c * 0.5) for c in horizontal_colors[i][0])
+            color_bottom = tuple(int(c * 0.5) for c in horizontal_colors[i][1])
+        
+        # Create a more interesting button shape (slightly skewed rectangle)
+        box_rect = pygame.Rect(pos[0] - 67, pos[1] + 20, input_box_width - 5, input_box_height)
+        
+        # Create a surface for gradient
+        gradient_surface = pygame.Surface(box_rect.size, pygame.SRCALPHA)
+        for y in range(box_rect.height):
+            blend_ratio = y / box_rect.height
+            r = int(color_top[0] * (1 - blend_ratio) + color_bottom[0] * blend_ratio)
+            g = int(color_top[1] * (1 - blend_ratio) + color_bottom[1] * blend_ratio)
+            b = int(color_top[2] * (1 - blend_ratio) + color_bottom[2] * blend_ratio)
+            pygame.draw.line(gradient_surface, (r, g, b), (0, y), (box_rect.width, y))
+        
+        # Draw skewed rectangle with rounded corners
+        points = [
+            (box_rect.left, box_rect.bottom),
+            (box_rect.left + 10, box_rect.top),
+            (box_rect.right - 10, box_rect.top),
+            (box_rect.right, box_rect.bottom)
+        ]
+        
+        # Create a surface to draw the polygon
+        poly_surface = pygame.Surface(box_rect.size, pygame.SRCALPHA)
+        pygame.draw.polygon(poly_surface, (0, 0, 0, 0), points)
+        poly_surface.blit(gradient_surface, (0, 0))
+        screen.blit(poly_surface, box_rect.topleft)
+        
+        # Add label
+        label_text = label_font.render(horizontal_labels[i], True, WHITE)
+        label_x = box_rect.centerx - label_text.get_width() // 2
+        label_y = box_rect.centery - label_text.get_height() // 2
+        screen.blit(label_text, (label_x, label_y))
+        
 # Handle keyboard input for the active box
 def handle_input(event):
     global active_box
@@ -84,14 +138,20 @@ def handle_mouse_click(event):
             active_box = i
             break
 
-    # Check for clicks on the new input boxes
+    # Check for clicks on the C and P boxes
     for i, pos in enumerate(new_input_boxes_position):
         if pygame.Rect(pos[0] - 67, pos[1] + 20, input_box_width - 5, input_box_height).collidepoint(event.pos):
-            # Set all input boxes to inactive (red)
             for j in range(len(new_input_boxes)):
                 new_input_boxes[j] = False
-            # Activate the clicked input box (green)
             new_input_boxes[i] = True
+            break
+    
+    # Check for clicks on horizontal buttons
+    for i, pos in enumerate(horizontal_buttons_position):
+        if pygame.Rect(pos[0] - 67, pos[1] + 20, input_box_width - 5, input_box_height).collidepoint(event.pos):
+            for j in range(len(horizontal_buttons)):
+                horizontal_buttons[j] = False
+            horizontal_buttons[i] = True
             break
 
 # Draw "Manual" / "Automatic" button
