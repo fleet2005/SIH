@@ -9,6 +9,7 @@ import storage  # For the map boundary
 from heuristicRetriever import HeuristicRetriever
 from intro_animation import play_intro_animation  # Import the intro animation module
 import WindRetriever
+from depthCells import retrieve_depth
 
 clock = pygame.time.Clock()
 
@@ -213,7 +214,7 @@ def get_neighbors(position):
     for dx, dy in directions:
         nx, ny = position[0] + dx, position[1] + dy
         if 0 <= nx < grid_width/grid_size and 0 <= ny < grid_height/grid_size:
-            if not is_black_pixel(nx, ny) and (nx, ny) not in blocks:
+            if not is_black_pixel(nx, ny) and (nx, ny) not in blocks and retrieve_depth(nx,ny) < -40:
                 # Check if the movement is aligned with the wind
                 wind_alignment = is_aligned_with_wind(position[0]+dx, position[1]+dy, dx, dy)
                 # Append the neighbor along with the wind alignment value

@@ -79,6 +79,25 @@ def process_csv(file_path, storage_file="lat_long_data.pkl"):
 
     return lat_long_dict
 
+# Retriever function: Get the depth for a specific grid coordinate
+def retrieve_depth(grid_x, grid_y, storage_file="lat_long_data.pkl"):
+    # Check if the data is available in the pickle file
+    if os.path.exists(storage_file):
+        with open(storage_file, 'rb') as file:
+            lat_long_dict = pickle.load(file)
+        
+        # Create the key for the coordinate
+        coordinate_key = f"{grid_x},{grid_y}"
+        
+        # Retrieve the depth for the specified coordinates
+        if coordinate_key in lat_long_dict:
+            return lat_long_dict[coordinate_key]
+        else:
+            return -50  # No depth data found for the coordinate
+    else:
+        print("No data found. Please process the CSV first.")
+        return -50
+
 # Specify the file path for the CSV
 file_path = "output_depth_data.csv"  # Update with your CSV file path
 
@@ -86,10 +105,11 @@ file_path = "output_depth_data.csv"  # Update with your CSV file path
 lat_long_dict = process_csv(file_path)
 
 # Example: Access the depth value for a specific grid coordinate (grid_x, grid_y)
-grid_x = 50  
-grid_y = 101   
-coordinate_key = f"{grid_x},{grid_y}"
-if coordinate_key in lat_long_dict:
-    print(f"Depth at ({grid_x}, {grid_y}): {lat_long_dict[coordinate_key]}")
+grid_x = 56
+grid_y = 125   
+depth_value = retrieve_depth(grid_x, grid_y)
+
+if depth_value is not None:
+    print(f"Depth at ({grid_x}, {grid_y}): {depth_value}")
 else:
     print(f"No depth data found for grid coordinates ({grid_x}, {grid_y})")

@@ -13,3 +13,7 @@ weather_daily_data_final.csv
 weather_hourly_data_final.csv
 weather_processing_log_20241129_174426.txt
 __pycache__
+gebco_2024_n20.632_s10.437_w79.321_e86.616.nc
+lat_long_data.csv
+lat_long_data.pkl
+output_depth_data.csv

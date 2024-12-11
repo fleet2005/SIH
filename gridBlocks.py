@@ -108,7 +108,7 @@ black_cells = findBlackCells(image)  # Find black cells and store them
 print("Black cells found:", black_cells)  # Print the coordinates of black cells
 
 # Define the target cell (grid coordinates) to be marked in green
-target_cell = (98,80) # Replace this with the desired coordinates
+target_cell = (56,125) # Replace this with the desired coordinates
 
 while running:
     # Handle events
@@ -143,11 +143,11 @@ while running:
     pygame.time.Clock().tick(60)  # 60 frames per second
     
     # Example usage of coordinate converter for y axis:
-    grid_y = 54.125  # Example grid y-coordinate
+    grid_y = 56  # Example grid y-coordinate
     latitude = grid_to_latitude(grid_y)
     print(f"Geographical latitude for grid y = {grid_y}: {latitude}°")
     
-    print("Coordinate:  ", grid_to_longitude(133))
+    print("Coordinate:  ", grid_to_longitude(56))
 
 # Quit Pygame
 pygame.quit()
