@@ -235,6 +235,10 @@ start_button_clicked = False  # Flag to check if the start button is clicked
 exploration_done = False  # Flag to prevent multiple explorations
 selected_start = None # To store the start point : interactive click
 selected_end = None # To store the end point : interactive click
+start_x = None
+start_y = None
+end_x = None
+end_y = None
 
 while running:
     for event in pygame.event.get():
@@ -284,8 +288,8 @@ while running:
     background()
     drawGrid()
     foreground()
-    weatherDisplay.weather(screen,  28.6139,  77.2090 )
-    weatherDisplay.weatherTwo(screen,  35.00,  45.2090 )
+    weatherDisplay.weather(screen,  start_y,  start_x )
+    weatherDisplay.weatherTwo(screen,  end_y,  end_x )
     uielements.draw_fuel_estimation_button(screen)
     uielements.draw_image_analysis_button(screen)
     uielements.draw_retrain_model_button(screen)
@@ -299,7 +303,7 @@ while running:
 
     # Display input boxes if show_input_boxes is active
     if show_input_boxes:
-        uielements.draw_input_boxes(screen)
+        uielements.draw_input_boxes(screen) 
 
     uielements.draw_new_input_boxes(screen)
     
@@ -336,7 +340,11 @@ while running:
                     
             else:
                 start = selected_start
+                start_y = grid_to_latitude(start[1])
+                start_x = grid_to_longitude(start[0])
                 end = selected_end
+                end_y = grid_to_latitude(end[1])
+                end_x = grid_to_longitude(end[0])
                 path, explored_nodes = a_star(start,end, cargo, passenger)
                 if path:
                     path_found = True
