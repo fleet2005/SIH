@@ -36,7 +36,7 @@ class HeuristicRetriever:
             return self.heuristics[coordinate]
         else:
             print(f"No heuristic value found for ({latitude}, {longitude}). Returning default value 0.5.")
-            return 0.5  # Default value if the coordinate is not found
+            return 0.1  # Default value if the coordinate is not found
 
 
 # Test the retrieval directly

@@ -122,13 +122,13 @@ while running:
     drawGrid()           # Draw the grid
     foreground()         # Draw the foreground image
 
-    # # Draw a colored rectangle on each black cell found
-    # for cell_coords in storage.Backup_black_cells:
-    #     x, y = cell_coords
-    #     # Draw a rectangle where the black cells are
-    #     rect_x = map_position[0] + x * grid_size
-    #     rect_y = map_position[1] + y * grid_size
-    #     pygame.draw.rect(screen, YELLOW, (rect_x, rect_y, grid_size, grid_size))
+    # Draw a colored rectangle on each black cell found
+    for cell_coords in storage.Backup_black_cells:
+        x, y = cell_coords
+        # Draw a rectangle where the black cells are
+        rect_x = map_position[0] + x * grid_size
+        rect_y = map_position[1] + y * grid_size
+        pygame.draw.rect(screen, YELLOW, (rect_x, rect_y, grid_size, grid_size))
 
     # Mark the target cell in green
     if target_cell:

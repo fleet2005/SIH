@@ -120,13 +120,13 @@ def h2_heuristic(node):
 def calculate_fscore(g_score, current, neighbor, end, is_first_box_green, is_second_box_green, wind_alignment):
     if is_second_box_green:  # passenger
         # f-score equation based on the second box being green
-        f_score = 0.2 * g_score + 0.1 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)  
+        f_score = 0.2 * g_score + 0.1 * euclidean(neighbor, end) + 1 * h2_heuristic(neighbor)  
     elif is_first_box_green:  # cargo
         # f-score equation based on the first box being green
         f_score = 0.5 * g_score + 0.5 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
     else:
         # Default f-score equation
-        f_score = 0.5 * g_score + 0.4 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
+        f_score = 0.5 * g_score + 0.4 * euclidean(neighbor, end) + 1 * h2_heuristic(neighbor)
     
     # Adjust f-score based on wind alignment (if aligned with the wind, give a bonus)
     if wind_alignment == 1:

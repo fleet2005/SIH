@@ -265,8 +265,8 @@ if __name__ == "__main__":
     trainer = WeatherHeuristicTrainer()
 
     # Set date range
-    start_date = datetime(2024, 8,29 )
-    end_date = datetime(2024, 9, 3 )
+    start_date = datetime(2024, 12,11 )
+    end_date = datetime(2024, 12, 16 )
 
     # Process all days and get dictionaries
     heuristics_dict, wind_deviation_dict = trainer.process_all_days(start_date, end_date)
