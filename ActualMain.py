@@ -55,7 +55,7 @@ def background():
 
 # Function to draw foreground (overlay image)
 def foreground():
-    image = pygame.image.load("IndiaFore.png")
+    image = pygame.image.load("IndiaFore2.png")
     image = pygame.transform.scale(image, (550, 600))
     screen.blit(image, map_position)
 
