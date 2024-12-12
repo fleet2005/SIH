@@ -11,6 +11,8 @@ from heuristicRetriever import HeuristicRetriever
 from intro_animation import play_intro_animation  # Importing the intro animation module
 import WindRetriever
 import currentDirRetriever   
+import fuel_csv
+
 
 clock = pygame.time.Clock()
 
@@ -157,33 +159,28 @@ def h2_heuristic(node):
 
 #adjust this on the day of hackathon
 def calculate_fscore(g_score, current, neighbor, end, is_first_box_green, is_second_box_green, wind_alignment, current_alignment):
-    if is_second_box_green:  # passenger
-        if horizontal_buttons[0]:  # Fast mode
-            f_score = 0.8 * g_score + 0.1 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
-        elif horizontal_buttons[1]:  # Safe mode
-            f_score = 0.2 * g_score + 0.1 * euclidean(neighbor, end) + 0.7 * h2_heuristic(neighbor)
-        elif horizontal_buttons[2]:  # Eco mode
-            f_score = 0.3 * g_score + 0.2 * euclidean(neighbor, end) + 0.5 * h2_heuristic(neighbor)
-        else:  # Default passenger mode
-            f_score = 0.2 * g_score + 0.1 * euclidean(neighbor, end) + 1 * h2_heuristic(neighbor)
-    elif is_first_box_green:  # cargo
-        if horizontal_buttons[0]:  # Fast mode
+    
+    fuelEfficiencyScore = function()
+    
+    print("FUEL SCORE: ", fuelEfficiencyScore)
+    
+    if is_first_box_green:  # cargo
+        pass
+        #combined
+
+    elif is_second_box_green:  # passenger
+        pass
+         #combined 
+    
+    else: #individual optimisation
+        if horizontal_buttons[0]:  # Fuel
             f_score = 0.7 * g_score + 0.2 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
-        elif horizontal_buttons[1]:  # Safe mode
+        elif horizontal_buttons[1]:  # Speed
             f_score = 0.3 * g_score + 0.3 * euclidean(neighbor, end) + 0.4 * h2_heuristic(neighbor)
-        elif horizontal_buttons[2]:  # Eco mode
+        elif horizontal_buttons[2]:  # Comfort
             f_score = 0.4 * g_score + 0.4 * euclidean(neighbor, end) + 0.2 * h2_heuristic(neighbor)
-        else:  # Default cargo mode
-            f_score = 0.5 * g_score + 0.5 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
-    else:
-        if horizontal_buttons[0]:  # Fast mode
-            f_score = 0.7 * g_score + 0.2 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
-        elif horizontal_buttons[1]:  # Safe mode
-            f_score = 0.3 * g_score + 0.3 * euclidean(neighbor, end) + 0.4 * h2_heuristic(neighbor)
-        elif horizontal_buttons[2]:  # Eco mode
-            f_score = 0.4 * g_score + 0.4 * euclidean(neighbor, end) + 0.2 * h2_heuristic(neighbor)
-        else:  # Default mode
-            f_score = 0.5 * g_score + 0.4 * euclidean(neighbor, end) + 1 * h2_heuristic(neighbor)
+        else:  
+            pass
     
     if wind_alignment == 1:
         f_score *= 0.9
