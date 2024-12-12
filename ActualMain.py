@@ -11,7 +11,6 @@ from heuristicRetriever import HeuristicRetriever
 from intro_animation import play_intro_animation  # Importing the intro animation module
 import WindRetriever
 import currentDirRetriever   
-import fuel_csv
 
 
 clock = pygame.time.Clock()
@@ -316,13 +315,17 @@ while running:
                 grid_y = (mouse_y - map_position[1]) // grid_size
                 
                 if selected_start is None:
-                    if not is_black_pixel(grid_x, grid_y):  # Check the grid_x, grid_y pixel
+                    if not is_black_pixel(grid_x, grid_y) and grid_y>78:  # Check the grid_x, grid_y pixel
                         selected_start = (grid_x, grid_y)
+                    else:
+                        print("The selected coordinate is invalid, please try again!")
                         
 
                 elif selected_end is None:
-                    if not is_black_pixel(grid_x, grid_y):  # Check the grid_x, grid_y pixel
+                    if not is_black_pixel(grid_x, grid_y) and grid_y>78:  # Check the grid_x, grid_y pixel
                         selected_end = (grid_x, grid_y)
+                    else:
+                        print("The selected coordinate is invalid, please try again!")
 
                 else:
                     selected_start, selected_end = None, None
@@ -349,8 +352,14 @@ while running:
     background()
     drawGrid()
     foreground()
-    weatherDisplay.weather(screen,  start_y,  start_x )
-    weatherDisplay.weatherTwo(screen,  end_y,  end_x )
+    
+    if start_x and start_y and end_x and end_y:
+        weatherDisplay.weather(screen,  start_y,  start_x )
+        weatherDisplay.weatherTwo(screen,  end_y,  end_x )
+    else:
+        weatherDisplay.weather(screen, 28.6139, 77.2090)
+        weatherDisplay.weatherTwo(screen, 35.00, 45.2090)
+
     uielements.draw_fuel_estimation_button(screen)
     uielements.draw_image_analysis_button(screen)
     uielements.draw_retrain_model_button(screen)
