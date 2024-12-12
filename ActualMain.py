@@ -11,6 +11,7 @@ from heuristicRetriever import HeuristicRetriever
 from intro_animation import play_intro_animation  # Importing the intro animation module
 import WindRetriever
 import currentDirRetriever   
+import fuelRetriever
 
 
 clock = pygame.time.Clock()
@@ -18,6 +19,7 @@ clock = pygame.time.Clock()
 # Initialize Pygame
 pygame.init()
 heuristic_retriever = HeuristicRetriever()
+fuel_retriever = fuelRetriever.FuelEfficiencyRetriever()
 intro_video_path = "./Countdown1.mp4"
 
 # Set up the display
@@ -159,9 +161,8 @@ def h2_heuristic(node):
 #adjust this on the day of hackathon
 def calculate_fscore(g_score, current, neighbor, end, is_first_box_green, is_second_box_green, wind_alignment, current_alignment):
     
-    fuelEfficiencyScore = function()
-    
-    print("FUEL SCORE: ", fuelEfficiencyScore)
+    f_score = 0
+    # print(fuel_retriever(68.125, 8.5))
     
     if is_first_box_green:  # cargo
         pass
