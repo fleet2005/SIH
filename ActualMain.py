@@ -25,7 +25,7 @@ screen_width, screen_height = info.current_w, info.current_h
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
 pygame.display.set_caption("Ship Navigation Algo")
 
-play_intro_animation(screen, intro_video_path, screen_width, screen_height)
+# play_intro_animation(screen, intro_video_path, screen_width, screen_height)
 background_image = pygame.image.load("background.jpg")  # Replace with your image path
 background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
 
@@ -57,7 +57,7 @@ def background():
 
 # Function to draw foreground (overlay image)
 def foreground():
-    image = pygame.image.load("IndiaFore2.png")
+    image = pygame.image.load("IndiaFore3.png")
     image = pygame.transform.scale(image, (550, 600))
     screen.blit(image, map_position)
 
@@ -319,9 +319,14 @@ while running:
                 grid_y = (mouse_y - map_position[1]) // grid_size
                 
                 if selected_start is None:
-                    selected_start = (grid_x,grid_y)
+                    if not is_black_pixel(grid_x, grid_y):  # Check the grid_x, grid_y pixel
+                        selected_start = (grid_x, grid_y)
+                        
+
                 elif selected_end is None:
-                    selected_end = (grid_x,grid_y)
+                    if not is_black_pixel(grid_x, grid_y):  # Check the grid_x, grid_y pixel
+                        selected_end = (grid_x, grid_y)
+
                 else:
                     selected_start, selected_end = None, None
                 
