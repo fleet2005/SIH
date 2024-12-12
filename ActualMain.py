@@ -2,14 +2,15 @@ import pygame
 import sys
 import math
 from queue import PriorityQueue
-import uielements  # Importing your UI elements file
+import uielements  # Importing UI elements file
 from uielements import horizontal_buttons
 import weatherDisplay
 from CoordConv import grid_to_latitude, grid_to_longitude, latitude_to_grid, longitude_to_grid, round_longitude, round_latitude
 import storage  # For the map boundary
 from heuristicRetriever import HeuristicRetriever
-from intro_animation import play_intro_animation  # Import the intro animation module
+from intro_animation import play_intro_animation  # Importing the intro animation module
 import WindRetriever
+import currentDirRetriever   
 
 clock = pygame.time.Clock()
 
@@ -65,7 +66,8 @@ def drawGrid():
     for x in range(map_position[0], map_position[0] + 550, grid_size):
         pygame.draw.line(screen, BLUE, (x, map_position[1]), (x, map_position[1] + 600))
     for y in range(map_position[1], map_position[1] + 600, grid_size):
-        pygame.draw.line(screen, BLUE, (map_position[0], y), (map_position[0] + 550, y))
+        if(y>350):
+            pygame.draw.line(screen, BLUE, (map_position[0], y), (map_position[0] + 550, y))
 
  
 def is_aligned_with_wind(long, lat, dx, dy):
@@ -104,6 +106,42 @@ def is_aligned_with_wind(long, lat, dx, dy):
         return 0
 
 
+def is_aligned_with_current(long, lat, dx, dy):
+    """
+    Determines if the movement direction (dx, dy) aligns with the ocean current direction.
+    
+    :param long: Longitude in grid coordinates
+    :param lat: Latitude in grid coordinates
+    :param dx: Movement in the x-direction (grid coordinates)
+    :param dy: Movement in the y-direction (grid coordinates)
+    :return: 1 if aligned within a 25° range, 0 otherwise
+    """
+    
+    # Convert grid coordinates to geographical coordinates
+    geo_latitude = round_latitude(grid_to_latitude(lat))
+    geo_longitude = round_longitude(grid_to_longitude(long))
+    
+    # Instantiate CurrentRetriever and retrieve current direction for the given geographical location
+    retriever = currentDirRetriever.OceanCurrentRetriever()  # Instantiating the CurrentDirectionRetriever
+    current_direction = retriever.retrieve_angle(geo_longitude, geo_latitude)
+    
+    # Calculate and normalizing the movement angle
+    movement_angle = round(math.degrees(math.atan2(dy, dx))) % 360
+
+    # Alignment range (±25° around the current direction)
+    lower_bound = (current_direction - 25) % 360
+    upper_bound = (current_direction + 25) % 360
+    
+    # Checking if the movement angle is within the alignment range
+    if (lower_bound <= movement_angle <= upper_bound) or (lower_bound > upper_bound and (movement_angle >= lower_bound or movement_angle <= upper_bound)):
+        print(geo_longitude, geo_latitude, 1, current_direction, movement_angle)
+        return 1
+    else:
+        print(geo_longitude, geo_latitude, 0, current_direction, movement_angle)
+        return 0
+
+
+    
 # A* Algorithm with new heuristic integration
 def euclidean(a, b):
     return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
@@ -118,7 +156,7 @@ def h2_heuristic(node):
     return heuristic_value
 
 #adjust this on the day of hackathon
-def calculate_fscore(g_score, current, neighbor, end, is_first_box_green, is_second_box_green, wind_alignment):
+def calculate_fscore(g_score, current, neighbor, end, is_first_box_green, is_second_box_green, wind_alignment, current_alignment):
     if is_second_box_green:  # passenger
         if horizontal_buttons[0]:  # Fast mode
             f_score = 0.8 * g_score + 0.1 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
@@ -149,6 +187,9 @@ def calculate_fscore(g_score, current, neighbor, end, is_first_box_green, is_sec
     
     if wind_alignment == 1:
         f_score *= 0.9
+        
+    if current_alignment ==1:
+        f_score *= 0.9
     
     return f_score
 
@@ -158,7 +199,7 @@ def a_star(start, end, is_first_box_green, is_second_box_green):
     open_set.put((0, start))
     came_from = {}
     g_score = {start: 0}
-    f_score = {start: calculate_fscore(g_score[start], start, start, end, is_first_box_green, is_second_box_green, 0)}  # Initial alignment is 0 (not used yet)
+    f_score = {start: calculate_fscore(g_score[start], start, start, end, is_first_box_green, is_second_box_green, 0, 0)}  # Initial alignment is 0 (not used yet)
     explored_nodes = []
 
     while not open_set.empty():
@@ -208,9 +249,9 @@ def a_star(start, end, is_first_box_green, is_second_box_green):
             return path, explored_nodes
 
         neighbors = get_neighbors(current)
-        for neighbor, wind_alignment in neighbors:
+        for neighbor, wind_alignment, current_alignment in neighbors:
             tentative_g_score = g_score[current] + euclidean(current, neighbor)
-            tentative_f_score = calculate_fscore(tentative_g_score, current, neighbor, end, is_first_box_green, is_second_box_green, wind_alignment)
+            tentative_f_score = calculate_fscore(tentative_g_score, current, neighbor, end, is_first_box_green, is_second_box_green, wind_alignment, current_alignment)
             
             if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
                 came_from[neighbor] = current
@@ -233,8 +274,9 @@ def get_neighbors(position):
             if not is_black_pixel(nx, ny) and (nx, ny) not in blocks:
                 # Check if the movement is aligned with the wind
                 wind_alignment = is_aligned_with_wind(position[0]+dx, position[1]+dy, dx, dy)
+                current_alignment = is_aligned_with_current(position[0]+dx, position[1]+dy, dx, dy)
                 # Append the neighbor along with the wind alignment value
-                neighbors.append(((nx, ny), wind_alignment))
+                neighbors.append(((nx, ny), wind_alignment, current_alignment))
     return neighbors
 
 
