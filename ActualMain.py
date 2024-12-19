@@ -12,7 +12,7 @@ from intro_animation import play_intro_animation  # Importing the intro animatio
 import WindRetriever
 import currentDirRetriever   
 import fuelRetriever
-
+from depthCells import retrieve_depth
 
 clock = pygame.time.Clock()
 
@@ -28,7 +28,7 @@ screen_width, screen_height = info.current_w, info.current_h
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
 pygame.display.set_caption("Ship Navigation Algo")
 
-# play_intro_animation(screen, intro_video_path, screen_width, screen_height)
+#play_intro_animation(screen, intro_video_path, screen_width, screen_height)
 background_image = pygame.image.load("background.jpg")  # Replace with your image path
 background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
 
@@ -154,39 +154,64 @@ def h2_heuristic(node):
     latitude = round_latitude(grid_to_latitude(grid_y))
     longitude = round_longitude(grid_to_longitude(grid_x))
     
-    heuristic_value = heuristic_retriever.get_heuristic_value(latitude, longitude)
+    heuristic_value = heuristic_retriever.get_heuristic_value(latitude, longitude, "heuristics_data.pkl")
     print("h2:", heuristic_value)
+    return heuristic_value
+
+def h3_heuristic(node):
+    grid_x, grid_y = node
+    latitude = round_latitude(grid_to_latitude(grid_y))
+    longitude = round_longitude(grid_to_longitude(grid_x))
+    
+    heuristic_value = heuristic_retriever.get_heuristic_value(latitude, longitude,"Cargo.pkl")
+    print("h3:", heuristic_value)
+    return heuristic_value
+
+def h4_heuristic(node):
+    grid_x, grid_y = node
+    latitude = round_latitude(grid_to_latitude(grid_y))
+    longitude = round_longitude(grid_to_longitude(grid_x))
+    
+    heuristic_value = heuristic_retriever.get_heuristic_value(latitude, longitude,"passenger.pkl")
+    print("h4:", heuristic_value)
     return heuristic_value
 
 #adjust this on the day of hackathon
 def calculate_fscore(g_score, current, neighbor, end, is_first_box_green, is_second_box_green, wind_alignment, current_alignment):
     
     f_score = 0
+    fuel_score = fuel_retriever.retrieve_fuel_efficiency(neighbor[0], neighbor[1])
+    print(fuel_score)
+    
     # print(fuel_retriever(68.125, 8.5))
     
     if is_first_box_green:  # cargo
-        pass
-        #combined
+        f_score = 0.3 * g_score + 0.7 * euclidean(neighbor, end) + 0.1 * h3_heuristic(neighbor)
 
     elif is_second_box_green:  # passenger
-        pass
+        f_score = 0.3 * g_score + 0.2 * euclidean(neighbor, end) + 1 * h4_heuristic(neighbor)
          #combined 
     
     else: #individual optimisation
         if horizontal_buttons[0]:  # Fuel
-            f_score = 0.7 * g_score + 0.2 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
+            f_score *= fuel_score
+            f_score = 0.4 * g_score + 0.2 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
+            
         elif horizontal_buttons[1]:  # Speed
-            f_score = 0.3 * g_score + 0.3 * euclidean(neighbor, end) + 0.4 * h2_heuristic(neighbor)
+            f_score = 0.3 * g_score + 0.7 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
+            
         elif horizontal_buttons[2]:  # Comfort
-            f_score = 0.4 * g_score + 0.4 * euclidean(neighbor, end) + 0.2 * h2_heuristic(neighbor)
+            f_score = 0.3 * g_score + 0.2 * euclidean(neighbor, end) + 1 * h2_heuristic(neighbor)
+            
         else:  
             pass
-    
+
     if wind_alignment == 1:
         f_score *= 0.9
         
     if current_alignment ==1:
         f_score *= 0.9
+        
     
     return f_score
 
@@ -228,6 +253,7 @@ def a_star(start, end, is_first_box_green, is_second_box_green):
             uielements.draw_image_analysis_button(screen)
             uielements.draw_retrain_model_button(screen)
             uielements.draw_path_coordinates_button(screen)
+            uielements.draw_dim_boxes(screen)
             
             pygame.display.flip()
             pygame.time.delay(500) 
@@ -268,7 +294,8 @@ def get_neighbors(position):
     for dx, dy in directions:
         nx, ny = position[0] + dx, position[1] + dy
         if 0 <= nx < grid_width/grid_size and 0 <= ny < grid_height/grid_size:
-            if not is_black_pixel(nx, ny) and (nx, ny) not in blocks:
+            if not is_black_pixel(nx, ny) and (nx, ny) not in blocks  and retrieve_depth(nx,ny) < -48:
+                print(retrieve_depth(nx,ny))
                 # Check if the movement is aligned with the wind
                 wind_alignment = is_aligned_with_wind(position[0]+dx, position[1]+dy, dx, dy)
                 current_alignment = is_aligned_with_current(position[0]+dx, position[1]+dy, dx, dy)
@@ -346,6 +373,7 @@ while running:
 
         if show_input_boxes:
             uielements.handle_input(event)
+            uielements.handle_dir_input(event)
 
     screen.blit(background_image, (0, 0))  # Draw the background image
 
@@ -353,18 +381,18 @@ while running:
     background()
     drawGrid()
     foreground()
-    
+  
     if start_x and start_y and end_x and end_y:
         weatherDisplay.weather(screen,  start_y,  start_x )
         weatherDisplay.weatherTwo(screen,  end_y,  end_x )
     else:
         weatherDisplay.weather(screen, 28.6139, 77.2090)
         weatherDisplay.weatherTwo(screen, 35.00, 45.2090)
-
     uielements.draw_fuel_estimation_button(screen)
     uielements.draw_image_analysis_button(screen)
     uielements.draw_retrain_model_button(screen)
     uielements.draw_path_coordinates_button(screen)
+    uielements.draw_dim_boxes(screen)
     
     # Draw the "Start" button
     uielements.draw_start_button(screen)  # Ensure the "Start" button is drawn
@@ -430,3 +458,4 @@ while running:
 
     pygame.display.flip()
     clock.tick(30)
+    

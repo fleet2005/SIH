@@ -52,14 +52,24 @@ def weather(screen, latitude, longitude):
 
     # Box properties
     box_width, box_height = 240, 180
+    
+    #text to display
+    departure_label = label_font.render("Pref. Ship:", True, BLACK)
+    screen.blit(departure_label, (700, 310))
+    
+    departure_label = label_font.render("Parameters:", True, BLACK)
+    screen.blit(departure_label, (680, 380))
+    
+    departure_label = label_font.render("Ship dim:", True, BLACK)
+    screen.blit(departure_label, (680, 450))
 
     # Draw "Departure" label
     departure_label = label_font.render("Departure", True, BLACK)
-    screen.blit(departure_label, (x_position + (box_width // 2 - departure_label.get_width() // 2), y_position - 40))
+    screen.blit(departure_label, (760, 510))
 
     # Draw the weather box with a grey border
-    pygame.draw.rect(screen, BORDER_COLOR, (x_position - 2, y_position - 2, box_width + 4, box_height + 4), border_radius=10)
-    pygame.draw.rect(screen, BACKGROUND_COLOR, (x_position, y_position, box_width, box_height), border_radius=10)
+    pygame.draw.rect(screen, BORDER_COLOR, (700 - 2, 550 - 2, box_width + 4, box_height + 4), border_radius=10)
+    pygame.draw.rect(screen, BACKGROUND_COLOR, (700, 550, box_width, box_height), border_radius=10)
 
     # Render weather data
     if "error" not in weather_data:
@@ -76,7 +86,7 @@ def weather(screen, latitude, longitude):
     # Display weather information
     for i, text in enumerate(weather_text):
         label = weather_font.render(text, True, TEXT_COLOR)
-        screen.blit(label, (x_position + 10, y_position + 20 + (i * 30)))  # Adjust line spacing
+        screen.blit(label, (700 + 10, 550 + 20 + (i * 30)))  # Adjust line spacing
 
 # Function to display weather for the second location (destination)
 def weatherTwo(screen, latitude, longitude):
@@ -86,8 +96,8 @@ def weatherTwo(screen, latitude, longitude):
     # Set up font and positioning
     weather_font = load_custom_font(24)
     label_font = load_custom_font(32)
-    x_position = SCREEN_WIDTH * 3 // 4 + 350  # Shift right by 240 pixels
-    y_position = SCREEN_HEIGHT * 3 // 4 + 15  # Adjust Y position for quadrant
+    x_position = 970  # Shift right by 240 pixels
+    y_position = 550  # Adjust Y position for quadrant
 
     # Box properties
     box_width, box_height = 240, 180

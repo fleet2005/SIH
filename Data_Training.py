@@ -39,14 +39,14 @@ class WeatherHeuristicTrainer:
 
     #before changing weight and demonstrating make sure to first delete the existing heuristics_data.pkl before calling the heuristics generator.
     #modify weight->call the generator -> show the difference in the graph and also the retrieved heuristic data using heur_retriever function.
-    def __init__(self):
+    def __init__(self,prev_heuristics=0.4,TP=0.1,pressure_msl=0.1,temp_variation=0.15,precipitation=0.1,wind=0.1):
         self.feature_weights = {
-            "prev_heuristic": 0.40,  # 40% weight for previous heuristic
-            "TP": 0.10, # 10% for peak wave period
-            "pressure_msl": 0.15,  # 15% for pressure
-            "temp_variation": 0.15,  # 15% for temperature variation
-            "precipitation": 0.10,  # 10% for precipitation
-            "wind": 0.10,  # 10% for wind components
+            "prev_heuristic": prev_heuristics,  # 40% weight for previous heuristic
+            "TP": TP, # 10% for peak wave period
+            "pressure_msl": pressure_msl,  # 15% for pressure
+            "temp_variation": temp_variation,  # 15% for temperature variation
+            "precipitation": precipitation,  # 10% for precipitation
+            "wind": wind,  # 10% for wind components
         }
         self.scaler = StandardScaler()
 

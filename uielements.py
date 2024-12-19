@@ -17,15 +17,20 @@ CLICK_EFFECT_COLOR_TOP = (0, 80, 150)
 CLICK_EFFECT_COLOR_BOTTOM = (0, 50, 100)
 
 # Input box properties
-input_boxes_position = [(690, 70), (670, 120), (910, 70), (910, 120)]
-new_input_boxes_position = [(775, 280), (775, 340)]  # New input boxes below buttons
-horizontal_buttons_position = [(915, 310), (1015, 310), (1115, 310)]  # New horizontal buttons
+input_boxes_position = [(670, 70), (670, 120), (910, 70), (910, 120)]
+new_input_boxes_position = [(900, 280), (1025, 280), (1150, 280)]  # New input boxes below buttons
+horizontal_buttons_position = [(900, 350), (1025, 350), (1150, 350)]  # New horizontal buttons
+ship_dim_button_pos = [(900,420),(1025,420),(1150,420),(1275,420)] #lbh dim
+ship_dim = [(780, 440),(880, 440),(980, 440),(1080, 440)]
 input_box_width = 50 * 1.8
 input_box_height = 40 * 1.1
 input_boxes = ["", "", "", ""]
-new_input_boxes = [False, False]
-horizontal_buttons = [False, False, False]  # Track state of horizontal buttons
+new_input_boxes = [False, False, False]  # p and c buttons
+horizontal_buttons = [False, False, False]  # Track state of horizontal buttons(speed,comfo,time)
 active_box = None
+active_box2 = None
+button_values = ["", "", "", ""]
+
 
 # Function to draw gradient-filled rounded rectangles
 def draw_gradient_button(screen, rect, color_top, color_bottom, border_radius=12):
@@ -51,11 +56,40 @@ def draw_input_boxes(screen):
         pygame.draw.rect(screen, INPUT_BOX_COLOR, (pos[0] + 130, pos[1] - 10, input_box_width, input_box_height), 2)
         text = font.render(input_boxes[i], True, WHITE)
         screen.blit(text, (pos[0] + 135, pos[1] - 3))
+        
+def draw_dim_boxes(screen):
+    font = pygame.font.Font(None, 36)
+    label_font = pygame.font.Font(None, 28)
+    labels = ["L:", "B:", "H:", "Eff:"]
+    horizontal_spacing = 100  # Adjust the spacing between boxes
+    start_x = 790  # Starting X position for the first box
+    start_y_label = 420  # Y position for labels
+    start_y_box = 440  # Y position for input boxes
+    
+    for i, label in enumerate(labels):
+        # Calculate positions based on spacing
+        label_x = start_x + i * horizontal_spacing
+        box_x = label_x - 10
+        box_y = start_y_box
+
+        # Draw label
+        label_text = label_font.render(label, True, LABEL_COLOR)
+        screen.blit(label_text, (label_x, start_y_label))
+
+        # Draw input box
+        pygame.draw.rect(screen, INPUT_BOX_COLOR, (box_x, box_y, input_box_width, input_box_height), 4)
+
+        # Draw text inside the input box
+        text = font.render(button_values[i], True, WHITE)
+        text_x = box_x + (input_box_width - text.get_width()) // 2
+        text_y = box_y + (input_box_height - text.get_height()) // 2
+        screen.blit(text, (text_x, text_y))
+
 
 # Draw the new input boxes with labels
 def draw_new_input_boxes(screen):
     label_font = pygame.font.Font(None, 28)
-    new_labels = ["C", "P"]
+    new_labels = ["C", "P", "I"]
     horizontal_labels = ["Fuel", "Speed", "Comfort"]  # Labels for horizontal buttons
     
     # Custom colors for horizontal buttons
@@ -118,6 +152,9 @@ def draw_new_input_boxes(screen):
         label_y = box_rect.centery - label_text.get_height() // 2
         screen.blit(label_text, (label_x, label_y))
         
+        
+
+        
 # Handle keyboard input for the active box
 def handle_input(event):
     global active_box
@@ -129,16 +166,64 @@ def handle_input(event):
                 pass
             else:
                 input_boxes[active_box] += event.unicode
+                
+def handle_dir_input(event):
+    global active_box2
+
+    # Define the dimensions and positions of the input boxes
+    input_box_positions = [
+        (780, 440),  # Box 1 position
+        (880, 440),  # Box 2 position
+        (980, 440),  # Box 3 position
+        (1080, 440)  # Box 4 position
+    ]
+    input_box_width = 100  # Width of each input box
+    input_box_height = 40  # Height of each input box
+
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        # Check if the mouse click is inside any input box
+        mouse_x, mouse_y = event.pos
+        for i, (box_x, box_y) in enumerate(input_box_positions):
+            if box_x <= mouse_x <= box_x + input_box_width and box_y <= mouse_y <= box_y + input_box_height:
+                active_box2 = i  # Set the active box to the clicked one
+                break
+        else:
+            active_box2 = None  # Deselect if clicking outside any box
+
+    # Process key inputs only if an input box is active
+    if active_box2 is not None:
+        if event.type == pygame.KEYDOWN:
+            # Handle backspace key
+            if event.key == pygame.K_BACKSPACE:
+                if len(button_values[active_box2]) > 0:
+                    button_values[active_box2] = button_values[active_box2][:-1]
+            
+            # Handle enter key (add logic for submission or focus change)
+            elif event.key == pygame.K_RETURN:
+                # Add your logic here (e.g., submit or change focus)
+                pass
+            
+            # Handle regular character input
+            elif event.key != pygame.K_BACKSPACE:
+                button_values[active_box2] += event.unicode
+
+
 
 # Handle mouse click to select the active input box
 def handle_mouse_click(event):
-    global active_box
+    global active_box,active_box2
     for i, pos in enumerate(input_boxes_position):
         if pygame.Rect(pos[0] + 130, pos[1] - 10, input_box_width, input_box_height).collidepoint(event.pos):
             active_box = i
             break
+    
+    for i, pos in enumerate(ship_dim):
+        if pygame.Rect(pos[0] + 130, pos[1] - 10, input_box_width, input_box_height).collidepoint(event.pos):
+            active_box2 = i
+            print(button_values)
+            break    
 
-    # Check for clicks on the C and P boxes
+    # Check for clicks on the C and P and I boxes
     for i, pos in enumerate(new_input_boxes_position):
         if pygame.Rect(pos[0] - 67, pos[1] + 20, input_box_width - 5, input_box_height).collidepoint(event.pos):
             for j in range(len(new_input_boxes)):
@@ -215,3 +300,4 @@ def draw_retrain_model_button(screen):
 # Placeholder for "Path Coordinates" button
 def draw_path_coordinates_button(screen):
     pass
+
