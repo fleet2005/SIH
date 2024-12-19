@@ -20,8 +20,6 @@ CLICK_EFFECT_COLOR_BOTTOM = (0, 50, 100)
 input_boxes_position = [(670, 70), (670, 120), (910, 70), (910, 120)]
 new_input_boxes_position = [(900, 280), (1025, 280), (1150, 280)]  # New input boxes below buttons
 horizontal_buttons_position = [(900, 350), (1025, 350), (1150, 350)]  # New horizontal buttons
-ship_dim_button_pos = [(900,420),(1025,420),(1150,420),(1275,420)] #lbh dim
-ship_dim = [(780, 440),(880, 440),(980, 440),(1080, 440)]
 input_box_width = 50 * 1.8
 input_box_height = 40 * 1.1
 input_boxes = ["", "", "", ""]
@@ -57,34 +55,7 @@ def draw_input_boxes(screen):
         text = font.render(input_boxes[i], True, WHITE)
         screen.blit(text, (pos[0] + 135, pos[1] - 3))
         
-def draw_dim_boxes(screen):
-    font = pygame.font.Font(None, 36)
-    label_font = pygame.font.Font(None, 28)
-    labels = ["L:", "B:", "H:", "Eff:"]
-    horizontal_spacing = 100  # Adjust the spacing between boxes
-    start_x = 790  # Starting X position for the first box
-    start_y_label = 420  # Y position for labels
-    start_y_box = 440  # Y position for input boxes
-    
-    for i, label in enumerate(labels):
-        # Calculate positions based on spacing
-        label_x = start_x + i * horizontal_spacing
-        box_x = label_x - 10
-        box_y = start_y_box
-
-        # Draw label
-        label_text = label_font.render(label, True, LABEL_COLOR)
-        screen.blit(label_text, (label_x, start_y_label))
-
-        # Draw input box
-        pygame.draw.rect(screen, INPUT_BOX_COLOR, (box_x, box_y, input_box_width, input_box_height), 4)
-
-        # Draw text inside the input box
-        text = font.render(button_values[i], True, WHITE)
-        text_x = box_x + (input_box_width - text.get_width()) // 2
-        text_y = box_y + (input_box_height - text.get_height()) // 2
-        screen.blit(text, (text_x, text_y))
-
+ 
 
 # Draw the new input boxes with labels
 def draw_new_input_boxes(screen):
@@ -216,13 +187,7 @@ def handle_mouse_click(event):
         if pygame.Rect(pos[0] + 130, pos[1] - 10, input_box_width, input_box_height).collidepoint(event.pos):
             active_box = i
             break
-    
-    for i, pos in enumerate(ship_dim):
-        if pygame.Rect(pos[0] + 130, pos[1] - 10, input_box_width, input_box_height).collidepoint(event.pos):
-            active_box2 = i
-            print(button_values)
-            break    
-
+     
     # Check for clicks on the C and P and I boxes
     for i, pos in enumerate(new_input_boxes_position):
         if pygame.Rect(pos[0] - 67, pos[1] + 20, input_box_width - 5, input_box_height).collidepoint(event.pos):

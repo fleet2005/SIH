@@ -253,7 +253,7 @@ def a_star(start, end, is_first_box_green, is_second_box_green):
             uielements.draw_image_analysis_button(screen)
             uielements.draw_retrain_model_button(screen)
             uielements.draw_path_coordinates_button(screen)
-            uielements.draw_dim_boxes(screen)
+            
             
             pygame.display.flip()
             pygame.time.delay(500) 
@@ -392,7 +392,6 @@ while running:
     uielements.draw_image_analysis_button(screen)
     uielements.draw_retrain_model_button(screen)
     uielements.draw_path_coordinates_button(screen)
-    uielements.draw_dim_boxes(screen)
     
     # Draw the "Start" button
     uielements.draw_start_button(screen)  # Ensure the "Start" button is drawn
