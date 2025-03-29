@@ -28,7 +28,7 @@ screen_width, screen_height = info.current_w, info.current_h
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
 pygame.display.set_caption("Ship Navigation Algo")
 
-#play_intro_animation(screen, intro_video_path, screen_width, screen_height)
+play_intro_animation(screen, intro_video_path, screen_width, screen_height)
 background_image = pygame.image.load("background.jpg")  # Replace with your image path
 background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
 
