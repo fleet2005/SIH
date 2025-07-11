@@ -20,3 +20,6 @@ output_depth_data.csv
 final2_with_fuel_efficiency.csv
 Cargo.pkl
 passenger.pkl
+prediction_results.csv
+merged_data_with_ship_frequency.csv
+heuristics_data.csv

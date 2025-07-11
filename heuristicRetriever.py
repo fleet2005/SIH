@@ -34,14 +34,15 @@ class HeuristicRetriever:
             filename (str): The name of the file to load the heuristic data from.
 
         Returns:
-            float: Heuristic value or a default value of 0.5 if not found.
+            float: Heuristic value or a default value of 0.38 if not found.
         """
         data = self.load_file(filename)
 
         # Directly search for the coordinate
         coordinate = (longitude, latitude)
         if coordinate in data:
+            print("heuristic:", data[coordinate])
             return data[coordinate]
         else:
             print(f"No heuristic value found for ({latitude}, {longitude}). Returning default value.")
-            return 0.5  # Default value if the coordinate is not found
+            return 0.38  # Default value if the coordinate is not found

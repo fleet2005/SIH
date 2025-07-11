@@ -11,7 +11,6 @@ from heuristicRetriever import HeuristicRetriever
 from intro_animation import play_intro_animation  # Importing the intro animation module
 import WindRetriever
 import currentDirRetriever   
-import fuelRetriever
 from depthCells import retrieve_depth
 
 clock = pygame.time.Clock()
@@ -19,7 +18,6 @@ clock = pygame.time.Clock()
 # Initialize Pygame
 pygame.init()
 heuristic_retriever = HeuristicRetriever()
-fuel_retriever = fuelRetriever.FuelEfficiencyRetriever()
 intro_video_path = "./Countdown1.mp4"
 
 # Set up the display
@@ -149,59 +147,36 @@ def is_aligned_with_current(long, lat, dx, dy):
 def euclidean(a, b):
     return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
  
-def h2_heuristic(node):
+def h_heuristic(node):
     grid_x, grid_y = node
     latitude = round_latitude(grid_to_latitude(grid_y))
     longitude = round_longitude(grid_to_longitude(grid_x))
     
     heuristic_value = heuristic_retriever.get_heuristic_value(latitude, longitude, "heuristics_data.pkl")
-    print("h2:", heuristic_value)
-    return heuristic_value
-
-def h3_heuristic(node):
-    grid_x, grid_y = node
-    latitude = round_latitude(grid_to_latitude(grid_y))
-    longitude = round_longitude(grid_to_longitude(grid_x))
-    
-    heuristic_value = heuristic_retriever.get_heuristic_value(latitude, longitude,"Cargo.pkl")
-    print("h3:", heuristic_value)
-    return heuristic_value
-
-def h4_heuristic(node):
-    grid_x, grid_y = node
-    latitude = round_latitude(grid_to_latitude(grid_y))
-    longitude = round_longitude(grid_to_longitude(grid_x))
-    
-    heuristic_value = heuristic_retriever.get_heuristic_value(latitude, longitude,"passenger.pkl")
-    print("h4:", heuristic_value)
+    print("h:", heuristic_value)
     return heuristic_value
 
 #adjust this on the day of hackathon
 def calculate_fscore(g_score, current, neighbor, end, is_first_box_green, is_second_box_green, wind_alignment, current_alignment):
     
     f_score = 0
-    fuel_score = fuel_retriever.retrieve_fuel_efficiency(neighbor[0], neighbor[1])
-    print(fuel_score)
-    
-    # print(fuel_retriever(68.125, 8.5))
     
     if is_first_box_green:  # cargo
-        f_score = 0.3 * g_score + 0.7 * euclidean(neighbor, end) + 0.1 * h3_heuristic(neighbor)
+        f_score = 0.3 * g_score + 0.7 * euclidean(neighbor, end) + 0.1 * h_heuristic(neighbor)
 
     elif is_second_box_green:  # passenger
-        f_score = 0.3 * g_score + 0.2 * euclidean(neighbor, end) + 1 * h4_heuristic(neighbor)
+        f_score = 0.3 * g_score + 0.2 * euclidean(neighbor, end) + 1 * h_heuristic(neighbor)
          #combined 
     
     else: #individual optimisation
         if horizontal_buttons[0]:  # Fuel
-            f_score *= fuel_score
-            f_score = 0.4 * g_score + 0.2 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
+            f_score = 0.4 * g_score + 0.2 * euclidean(neighbor, end) + 0.1 * h_heuristic(neighbor)
             
         elif horizontal_buttons[1]:  # Speed
-            f_score = 0.3 * g_score + 0.7 * euclidean(neighbor, end) + 0.1 * h2_heuristic(neighbor)
+            f_score = 0.3 * g_score + 0.7 * euclidean(neighbor, end) + 0.1 * h_heuristic(neighbor)
             
         elif horizontal_buttons[2]:  # Comfort
-            f_score = 0.3 * g_score + 0.2 * euclidean(neighbor, end) + 1 * h2_heuristic(neighbor)
+            f_score = 0.3 * g_score + 0.2 * euclidean(neighbor, end) + 1 * h_heuristic(neighbor)
             
         else:  
             pass
